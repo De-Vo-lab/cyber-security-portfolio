@@ -155,14 +155,13 @@ export default function Spaceship() {
 
       // Float animation
       if (group) {
-        // Path animation: right-bottom -> center -> top-left -> back to right-bottom (loop)
-        const speed = 0.12; // overall travel speed
-        const s = (t * speed) % 1; // normalized 0..1 loop
+        // Single pass: right-bottom -> across center -> far top-left (off-screen), then loop
+        const speed = 0.14; // slight speed bump for a satisfying pass
+        const s = (t * speed) % 1; // 0..1 per pass
 
-        // Keypoints
-        const P0 = { x: 6, y: -1 };  // right-bottom
-        const P1 = { x: 0, y: 0 };   // center
-        const P2 = { x: -6, y: 2 };  // top-left
+        // Keypoints: start on screen, end beyond the view so it "exits" space
+        const P0 = { x: 6, y: -1 };    // start (right-bottom)
+        const PEND = { x: -10, y: 3 }; // end (far top-left, off-screen)
 
         // helpers
         const smoothstep = (a: number, b: number, x: number) => {
@@ -171,23 +170,10 @@ export default function Spaceship() {
         };
         const lerp = (a: number, b: number, tL: number) => a + (b - a) * tL;
 
-        // piecewise interpolate across segments
-        let px = P0.x;
-        let py = P0.y;
-
-        if (s < 1 / 3) {
-          const u = smoothstep(0, 1 / 3, s);
-          px = lerp(P0.x, P1.x, u);
-          py = lerp(P0.y, P1.y, u);
-        } else if (s < 2 / 3) {
-          const u = smoothstep(1 / 3, 2 / 3, s);
-          px = lerp(P1.x, P2.x, u);
-          py = lerp(P1.y, P2.y, u);
-        } else {
-          const u = smoothstep(2 / 3, 1, s);
-          px = lerp(P2.x, P0.x, u);
-          py = lerp(P2.y, P0.y, u);
-        }
+        // smooth interpolation along the long pass
+        const u = smoothstep(0, 1, s);
+        const px = lerp(P0.x, PEND.x, u);
+        const py = lerp(P0.y, PEND.y, u);
 
         // gentle bobbing overlay
         const bob = Math.sin(t * 1.2) * 0.25;
@@ -195,15 +181,15 @@ export default function Spaceship() {
         group.position.x = px;
         group.position.y = py + bob;
 
-        // smooth yaw plus mouse parallax
-        group.rotation.y += 0.1 * dt; // subtle orbit
+        // subtle orbit + mouse parallax
+        group.rotation.y += 0.1 * dt; // base orbit
         const targetRotX = mouse.y * 0.25;
         const targetRotY = mouse.x * 0.35;
         group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
         group.rotation.y += (targetRotY - group.rotation.y) * 0.04;
 
-        // Smoothly steer the camera to look at the spaceship so it never leaves frame
-        lookAtTarget.lerp(group.position, 0.08); // smoothing factor
+        // keep camera trained on the ship
+        lookAtTarget.lerp(group.position, 0.08);
         camera.lookAt(lookAtTarget);
       }
 
