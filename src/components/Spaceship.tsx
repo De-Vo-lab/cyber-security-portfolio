@@ -199,11 +199,12 @@ export default function Spaceship() {
           const u = smoothstep(0, 1, (s - 0.6) / 0.4);
           px = lerp(PC.x, PEND.x, u);
           py = lerp(PC.y, PEND.y, u);
-          // accelerate deeper to feel like getting pulled into a black hole
+          // accelerate deeper; begin stronger pull earlier for smoother exit
           pz = lerp(-1.2, -6, u);
-          if (s >= 0.9) {
-            const deepU = (s - 0.9) / 0.1; // 0..1
-            pz = lerp(pz, -12, deepU);
+          // ramp the "black hole" pull across the last 20% of the cycle
+          if (s >= 0.8) {
+            const deepU = (s - 0.8) / 0.2; // 0..1
+            pz = lerp(pz, -16, deepU);
           }
         }
 
@@ -212,8 +213,12 @@ export default function Spaceship() {
 
         // Compute banking from horizontal velocity before applying position
         const vx = px - lastPosX;
-        // target bank angle (lean into turns)
-        const bankTarget = THREE.MathUtils.clamp(-vx * 0.25, -0.6, 0.6);
+
+        // Dampen dynamics near exit so it glides smoothly into the fade
+        const exitFactor = s < 0.8 ? 1 : 1 - smoothstep(0, 1, (s - 0.8) / 0.2);
+
+        // target bank angle (lean into turns), damped on exit
+        const bankTarget = THREE.MathUtils.clamp(-vx * 0.25 * exitFactor, -0.6, 0.6);
 
         // APPLY OFFSET so the entire path is shifted up/left
         group.position.set(px + X_OFFSET, py + Y_OFFSET + bob, pz);
@@ -221,11 +226,10 @@ export default function Spaceship() {
         // Natural banking with damping
         group.rotation.z += (bankTarget - group.rotation.z) * Math.min(1, 8 * dt);
 
-        // subtle orbit + mouse parallax
+        // subtle orbit + mouse parallax (damped on exit)
         group.rotation.y += 0.1 * dt; // base orbit
-        const targetRotX = mouse.y * 0.25;
-        const targetRotY = mouse.x * 0.35;
-        // slightly stronger damping for smoother feel
+        const targetRotX = mouse.y * 0.25 * exitFactor;
+        const targetRotY = mouse.x * 0.35 * exitFactor;
         group.rotation.x += (targetRotX - group.rotation.x) * Math.min(1, 5 * dt);
         group.rotation.y += (targetRotY - group.rotation.y) * Math.min(1, 4 * dt);
 
@@ -233,13 +237,13 @@ export default function Spaceship() {
         lookAtTarget.lerp(group.position, Math.min(1, 6 * dt));
         camera.lookAt(lookAtTarget);
 
-        // ADD: smooth exit fade-out and entrance fade-in to avoid visible "pop"
-        // Fade in for first 8% of the cycle, fade out for last 10%
+        // Smooth entrance/exit fades:
+        // Fade in first 12%, fade out last 20% for a softer appear/disappear
         let opacity = 1;
-        if (s < 0.08) {
-          opacity = smoothstep(0, 1, s / 0.08);      // 0 -> 1
-        } else if (s > 0.9) {
-          opacity = smoothstep(1, 0, (s - 0.9) / 0.1); // 1 -> 0
+        if (s < 0.12) {
+          opacity = smoothstep(0, 1, s / 0.12);            // 0 -> 1
+        } else if (s > 0.8) {
+          opacity = smoothstep(1, 0, (s - 0.8) / 0.2);     // 1 -> 0
         }
 
         // Apply opacity to cached materials
@@ -256,7 +260,8 @@ export default function Spaceship() {
         group.scale.setScalar(baseScale * scaled);
 
         // Optionally hide at near-zero opacity to avoid any flicker on wrap
-        group.visible = opacity > 0.03;
+        group.visible = opacity > 0.02;
+
       }
 
       // Subtle star drift
