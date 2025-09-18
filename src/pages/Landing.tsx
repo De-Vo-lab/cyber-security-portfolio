@@ -14,47 +14,9 @@ import {
   MapPin, 
   Phone 
 } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function Landing() {
-  const skills = [
-    'Splunk', 'QRadar', 'Wazuh', 'Log Analysis', 'Alert Triage',
-    'MITRE ATT&CK', 'Cyber Kill Chain', 'Threat Intel', 'Vulnerability Analysis',
-    'AWS Security/Networking', 'Linux', 'Windows Event Logs', 'Active Directory',
-    'Python', 'SQL', 'Wireshark', 'VMs', 'Basic Pentest Tools'
-  ];
-
-  const projects = [
-    {
-      title: 'AI Phishing Email Automation',
-      description: 'No-code workflow to ingest emails, enrich IOCs, classify, route paths, and auto-notify SOC; reduced manual triage by ~80%.',
-      tech: ['Tines', 'Sublime Security', 'VirusTotal', 'URLScan', 'GPT-4 (opt)'],
-      github: 'https://github.com/devarajan-here',
-      demo: '#'
-    },
-    {
-      title: 'Malware Analyzer',
-      description: 'URL/embedded content analysis with link scanning, basic signature checks, and risk scoring.',
-      tech: ['Python', 'Security Analysis', 'URL Scanning'],
-      github: 'https://github.com/devarajan-here',
-      demo: '#'
-    }
-  ];
-
-  const experiences = [
-    {
-      title: 'Cybersecurity Analyst Intern',
-      company: 'bblewrap',
-      period: '06/2024 – 12/2024',
-      description: 'Performed SIEM log analysis and event correlation (Splunk/QRadar); tuned rules to reduce false positives; identified and remediated critical vulnerabilities in MADU application.'
-    },
-    {
-      title: 'Cybersecurity Engineer',
-      company: 'Finpro Technologies',
-      period: '01/2025',
-      description: 'Supported ISO 27001-aligned GRC initiatives; authored procedures and compliance artifacts; delivered pre-sales demos; supported incident workflows per SOC playbooks.'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
       <SpaceBackground />
@@ -135,133 +97,168 @@ export default function Landing() {
                   <MapPin className="w-4 h-4" /> Thrissur, Kerala, India
                 </span>
               </div>
+
+              {/* Download Resume Button */}
+              <div className="mt-6 flex justify-center">
+                <Button
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10"
+                  asChild
+                >
+                  <a
+                    href="https://devarajan.tiiny.site"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Download my resume"
+                  >
+                    Download My Resume
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
             </div>
 
             <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
               <CardContent className="p-6 space-y-8">
-                <section>
-                  <h3 className="text-2xl font-semibold mb-3 text-white">Professional Summary</h3>
-                  <p className="text-white/80 leading-relaxed">
-                    Aspiring Security Analyst with hands-on experience in incident response, alert triage, and SIEM log analysis.
-                    Skilled in threat detection, escalation, and case management workflows, with a strong foundation in network
-                    security and threat intelligence. Familiar with ServiceNow for incident tracking and process automation. Eager
-                    to contribute to enhancing organizational security posture through proactive monitoring, timely escalation,
-                    and continuous process improvement.
-                  </p>
-                </section>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="summary">
+                    <AccordionTrigger className="text-2xl font-semibold text-white">Professional Summary</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-white/80 leading-relaxed">
+                        Aspiring Security Analyst with hands-on experience in incident response, alert triage, and SIEM log analysis.
+                        Skilled in threat detection, escalation, and case management workflows, with a strong foundation in network
+                        security and threat intelligence. Familiar with ServiceNow for incident tracking and process automation. Eager
+                        to contribute to enhancing organizational security posture through proactive monitoring, timely escalation,
+                        and continuous process improvement.
+                      </p>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <section>
-                  <h3 className="text-2xl font-semibold mb-3 text-white">Skills</h3>
-                  <div className="grid md:grid-cols-2 gap-4 text-white/80">
-                    <div>
-                      <h4 className="font-semibold mb-2">SIEM & SOC</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        <li>Splunk, QRadar, Wazuh, Log Analysis, Correlation Rules</li>
-                        <li>Alert Triage, Phishing Investigation, Incident Triage & Escalation</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2">Security Domains</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        <li>Threat Intel, MITRE ATT&CK, Cyber Kill Chain</li>
-                        <li>Vulnerability Analysis, Email Security, DLP, ISO 27001</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2">Cloud & Systems</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        <li>AWS Security/Networking, Linux, Windows Event Logs, Active Directory</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2">Programming & Tools</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        <li>Python, SQL, Wireshark, VMs, Basic Pentest Tools</li>
-                      </ul>
-                    </div>
-                  </div>
-                </section>
-
-                <section>
-                  <h3 className="text-2xl font-semibold mb-3 text-white">Professional Experience</h3>
-                  <div className="space-y-6">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 text-white">
-                        <h4 className="font-semibold">Cybersecurity Analyst Intern — bblewrap</h4>
-                        <span className="text-white/60">India (Remote)</span>
-                        <span className="text-white/60 inline-flex items-center gap-2">
-                          <Calendar className="w-4 h-4" /> 06/2024 – 12/2024
-                        </span>
+                  <AccordionItem value="skills">
+                    <AccordionTrigger className="text-2xl font-semibold text-white">Skills</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid md:grid-cols-2 gap-4 text-white/80">
+                        <div>
+                          <h4 className="font-semibold mb-2">SIEM & SOC</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            <li>Splunk, QRadar, Wazuh, Log Analysis, Correlation Rules</li>
+                            <li>Alert Triage, Phishing Investigation, Incident Triage & Escalation</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2">Security Domains</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            <li>Threat Intel, MITRE ATT&CK, Cyber Kill Chain</li>
+                            <li>Vulnerability Analysis, Email Security, DLP, ISO 27001</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2">Cloud & Systems</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            <li>AWS Security/Networking, Linux, Windows Event Logs, Active Directory</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2">Programming & Tools</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            <li>Python, SQL, Wireshark, VMs, Basic Pentest Tools</li>
+                          </ul>
+                        </div>
                       </div>
-                      <ul className="list-disc list-inside mt-2 text-white/80 space-y-1">
-                        <li>Performed SIEM log analysis and event correlation (Splunk/QRadar); increased incident detection by 15%.</li>
-                        <li>Tuned correlation rules and evaluated controls to reduce false positives by 10%.</li>
-                        <li>Identified and remediated critical vulnerabilities in Manappuram Finance MADU application.</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 text-white">
-                        <h4 className="font-semibold">Cybersecurity Engineer — Finpro Technologies</h4>
-                        <span className="text-white/60">India (Remote)</span>
-                        <span className="text-white/60 inline-flex items-center gap-2">
-                          <Calendar className="w-4 h-4" /> 01/2025
-                        </span>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="experience">
+                    <AccordionTrigger className="text-2xl font-semibold text-white">Professional Experience</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-6">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2 text-white">
+                            <h4 className="font-semibold">Cybersecurity Analyst Intern — bblewrap</h4>
+                            <span className="text-white/60">India (Remote)</span>
+                            <span className="text-white/60 inline-flex items-center gap-2">
+                              <Calendar className="w-4 h-4" /> 06/2024 – 12/2024
+                            </span>
+                          </div>
+                          <ul className="list-disc list-inside mt-2 text-white/80 space-y-1">
+                            <li>Performed SIEM log analysis and event correlation (Splunk/QRadar); increased incident detection by 15%.</li>
+                            <li>Tuned correlation rules and evaluated controls to reduce false positives by 10%.</li>
+                            <li>Identified and remediated critical vulnerabilities in Manappuram Finance MADU application.</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2 text-white">
+                            <h4 className="font-semibold">Cybersecurity Engineer — Finpro Technologies</h4>
+                            <span className="text-white/60">India (Remote)</span>
+                            <span className="text-white/60 inline-flex items-center gap-2">
+                              <Calendar className="w-4 h-4" /> 01/2025
+                            </span>
+                          </div>
+                          <ul className="list-disc list-inside mt-2 text-white/80 space-y-1">
+                            <li>Supported ISO 27001-aligned GRC initiatives: risk assessments, control mapping, policy documentation.</li>
+                            <li>Authored procedures and compliance artifacts aligning operations with best practices.</li>
+                            <li>Delivered pre-sales cybersecurity demos; mapped technical capabilities to client requirements.</li>
+                            <li>Supported incident handling workflows, ensuring timely escalation and closure aligned with SOC playbooks.</li>
+                          </ul>
+                        </div>
                       </div>
-                      <ul className="list-disc list-inside mt-2 text-white/80 space-y-1">
-                        <li>Supported ISO 27001-aligned GRC initiatives: risk assessments, control mapping, policy documentation.</li>
-                        <li>Authored procedures and compliance artifacts aligning operations with best practices.</li>
-                        <li>Delivered pre-sales cybersecurity demos; mapped technical capabilities to client requirements.</li>
-                        <li>Supported incident handling workflows, ensuring timely escalation and closure aligned with SOC playbooks.</li>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="certs">
+                    <AccordionTrigger className="text-2xl font-semibold text-white">Certifications</AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="list-disc list-inside text-white/80 space-y-1">
+                        <li>CompTIA Security+ — CompTIA | 08/2025 (Credential ID: COMP001022645550)</li>
+                        <li>Generative AI Fundamentals — GeeksforGeeks | Course Completed</li>
+                        <li>Google Cybersecurity Professional — Coursera | 03/2024</li>
+                        <li>Ethical Hacking Associate — RedTeam | Course Completed</li>
+                        <li>Ethical Hacking Essentials — EC-Council | Course Completed</li>
                       </ul>
-                    </div>
-                  </div>
-                </section>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <section>
-                  <h3 className="text-2xl font-semibold mb-3 text-white">Certifications</h3>
-                  <ul className="list-disc list-inside text-white/80 space-y-1">
-                    <li>CompTIA Security+ — CompTIA | 08/2025 (Credential ID: COMP001022645550)</li>
-                    <li>Generative AI Fundamentals — GeeksforGeeks | Course Completed</li>
-                    <li>Google Cybersecurity Professional — Coursera | 03/2024</li>
-                    <li>Ethical Hacking Associate — RedTeam | Course Completed</li>
-                    <li>Ethical Hacking Essentials — EC-Council | Course Completed</li>
-                  </ul>
-                </section>
+                  <AccordionItem value="education">
+                    <AccordionTrigger className="text-2xl font-semibold text-white">Education</AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="list-disc list-inside text-white/80 space-y-1">
+                        <li>B.Tech, Computer Science — APJAKTU - SNMIMT (First Class), 2020–2024</li>
+                        <li>Plus Two in Computer Science — MES P Vemballur High School, 2018–2020</li>
+                        <li>Class X — T.H.S Kodungallur, 2017–2018</li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <section>
-                  <h3 className="text-2xl font-semibold mb-3 text-white">Education</h3>
-                  <ul className="list-disc list-inside text-white/80 space-y-1">
-                    <li>B.Tech, Computer Science — APJAKTU - SNMIMT (First Class), 2020–2024</li>
-                    <li>Plus Two in Computer Science — MES P Vemballur High School, 2018–2020</li>
-                    <li>Class X — T.H.S Kodungallur, 2017–2018</li>
-                  </ul>
-                </section>
+                  <AccordionItem value="projects">
+                    <AccordionTrigger className="text-2xl font-semibold text-white">Projects</AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="list-disc list-inside text-white/80 space-y-2">
+                        <li>
+                          AI Phishing Email Automation (2025): Tines, Sublime Security, VirusTotal, URLScan, GPT-4 (opt).
+                          Built a no-code workflow to ingest emails, enrich IOCs, classify, route attachment/non-attachment paths,
+                          and auto-notify SOC via Slack/Email; reduced manual triage by ~80%.
+                        </li>
+                        <li>
+                          Malware Analyzer: Implemented URL/embedded content analysis with link scanning, basic signature checks,
+                          and risk scoring.
+                        </li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <section>
-                  <h3 className="text-2xl font-semibold mb-3 text-white">Projects</h3>
-                  <ul className="list-disc list-inside text-white/80 space-y-2">
-                    <li>
-                      AI Phishing Email Automation (2025): Tines, Sublime Security, VirusTotal, URLScan, GPT-4 (opt).
-                      Built a no-code workflow to ingest emails, enrich IOCs, classify, route attachment/non-attachment paths,
-                      and auto-notify SOC via Slack/Email; reduced manual triage by ~80%.
-                    </li>
-                    <li>
-                      Malware Analyzer: Implemented URL/embedded content analysis with link scanning, basic signature checks,
-                      and risk scoring.
-                    </li>
-                  </ul>
-                </section>
-
-                <section>
-                  <h3 className="text-2xl font-semibold mb-3 text-white">Additional Experience & Learning</h3>
-                  <ul className="list-disc list-inside text-white/80 space-y-1">
-                    <li>Home Lab: VMs with Splunk and Wazuh; simulated attacks/defense; Windows Event Log parsing; phishing investigation.</li>
-                    <li>TryHackMe: Cybersecurity Analyst path (SIEM, endpoint protection, phishing analysis).</li>
-                    <li>LetsDefend: SOC workflows, MITRE ATT&CK mapping, alert analysis.</li>
-                    <li>Stock Market Data Analyzer: Built a tool using APIs and custom algorithms for trend analysis and insights.</li>
-                    <li>Interview Assistant Website: AI-powered platform to generate questions, analyze answers, and provide feedback.</li>
-                  </ul>
-                </section>
+                  <AccordionItem value="additional">
+                    <AccordionTrigger className="text-2xl font-semibold text-white">Additional Experience & Learning</AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="list-disc list-inside text-white/80 space-y-1">
+                        <li>Home Lab: VMs with Splunk and Wazuh; simulated attacks/defense; Windows Event Log parsing; phishing investigation.</li>
+                        <li>TryHackMe: Cybersecurity Analyst path (SIEM, endpoint protection, phishing analysis).</li>
+                        <li>LetsDefend: SOC workflows, MITRE ATT&CK mapping, alert analysis.</li>
+                        <li>Stock Market Data Analyzer: Built a tool using APIs and custom algorithms for trend analysis and insights.</li>
+                        <li>Interview Assistant Website: AI-powered platform to generate questions, analyze answers, and provide feedback.</li>
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </CardContent>
             </Card>
           </motion.div>
