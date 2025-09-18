@@ -246,8 +246,9 @@ export default function Spaceship() {
 
         // Keypoints: start bottom-right -> pass through true page center (adjusted left within right-aligned canvas) -> vanish
         const P0 = { x: 5.2, y: -1.0 };  // start at bottom-right
-        // Shift the "center" target left so it aligns with the page's 50vw (canvas sits on right 55vw)
-        const CENTER_OFFSET_X = -2.4; // tune between -2.0 and -3.0 if you want finer alignment across devices
+        // Adjust toward true page center; the canvas sits on the right ~55vw, so offset left.
+        // Add a small aspect-based tweak so very wide screens remain centered.
+        const CENTER_OFFSET_X = -2.85 - Math.max(0, camera.aspect - 1) * 0.35;
         const PC = { x: CENTER_OFFSET_X, y: 0.15 };  // adjusted center target
 
         // Helpers
