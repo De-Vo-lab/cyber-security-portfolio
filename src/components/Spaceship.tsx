@@ -197,6 +197,52 @@ export default function Spaceship() {
 
         // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
         group.rotation.y = ORIENT_YAW;
+
+        // Compute a stable right-side anchor in world space (z = 0 plane)
+        // based on the canvas' fixed position on the right side of the page.
+        let anchorX = 3.2; // fallback default
+        const computeWorldXAtScreenRatio = () => {
+          if (!mount) return;
+
+          // Position the ship around ~left third of the right-side canvas,
+          // which visually keeps it on the right of the page without covering the hero text.
+          const rect = mount.getBoundingClientRect();
+          const screenX = rect.left + rect.width * 0.32; // tweakable anchor inside the canvas
+          const screenY = rect.top + rect.height * 0.5;
+
+          // Convert screen -> NDC
+          const ndc = new THREE.Vector3(
+            (screenX / window.innerWidth) * 2 - 1,
+            -(screenY / window.innerHeight) * 2 + 1,
+            0.5
+          );
+
+          // Unproject to world and intersect with z=0 plane
+          ndc.unproject(camera);
+          const origin = camera.position.clone();
+          const dir = ndc.sub(origin).normalize();
+          const EPS = 1e-6;
+
+          if (Math.abs(dir.z) < EPS) {
+            // Ray nearly parallel to z=0 plane; keep previous value
+            return;
+          }
+
+          const t = (0 - origin.z) / dir.z; // hit z=0 plane
+          const hit = origin.add(dir.multiplyScalar(t));
+          if (Number.isFinite(hit.x)) {
+            anchorX = hit.x;
+          }
+        };
+
+        // Initial compute (in case model load fails or before it completes)
+        computeWorldXAtScreenRatio();
+
+        // Recompute right-side anchor now that the camera framing is finalized
+        computeWorldXAtScreenRatio();
+
+        // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
+        group.rotation.y = ORIENT_YAW;
       },
       undefined,
       (err) => {
@@ -224,6 +270,7 @@ export default function Spaceship() {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      computeWorldXAtScreenRatio();
     };
     window.addEventListener("resize", onResize);
 
@@ -242,7 +289,7 @@ export default function Spaceship() {
 
       if (group) {
         // Fixed anchor on the right side; no sweeping/path progression
-        const P0 = { x: 3.2, y: 0.2 };
+        const P0 = { x: anchorX, y: 0.2 };
 
         // Gentle bobbing
         const bob = Math.sin(t * 1.2) * 0.2;
