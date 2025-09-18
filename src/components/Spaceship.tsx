@@ -233,7 +233,7 @@ export default function Spaceship() {
     let t = 0;
     const clock = new THREE.Clock();
     // Initialize prevPx to match the starting x position to avoid an initial banking jerk
-    let prevPx = 4; // track previous x for banking (updated to match P0.x)
+    let prevPx = 5.2; // track previous x for banking (updated to match P0.x)
     const animate = () => {
       const dt = clock.getDelta();
       t += dt;
@@ -244,9 +244,9 @@ export default function Spaceship() {
         const speed = 0.25; // faster pass
         const s = (t * speed) % 1; // 0..1 per pass
 
-        // Keypoints and offsets (slightly more centered)
-        const P0 = { x: 4, y: -0.6 };   // start (right-bottom, more centered)
-        const PEND = { x: -8, y: 2.2 }; // end (top-left, less extreme)
+        // Keypoints: start bottom-right -> pass through center -> vanish at center
+        const P0 = { x: 5.2, y: -1.0 };  // start at bottom-right
+        const PC = { x: 0.0, y: 0.15 };  // center pass/settle target (slightly above exact center for composition)
         // Helpers
         // Replace simple smoothstep with quintic smootherstep for nicer easing
         const smootherstep = (a: number, b: number, x: number) => {
@@ -255,16 +255,20 @@ export default function Spaceship() {
         };
         const lerp = (a: number, b: number, tt: number) => a + (b - a) * tt;
 
-        // Long pass interpolation with a tiny settle at start and tighter hyper window
-        const u = smootherstep(0.05, 0.78, s);
-        const px = lerp(P0.x, PEND.x, u);
-        const py = lerp(P0.y, PEND.y, u);
+        // Phase 1: move from bottom-right to center (gentle start)
+        const u = smootherstep(0.05, 0.6, s);
+        let px = lerp(P0.x, PC.x, u);
+        let py = lerp(P0.y, PC.y, u);
+        // Phase 2: settle smoothly at center before hyperjump
+        const settle = smootherstep(0.6, 0.8, s);
+        px = lerp(px, PC.x, settle);
+        py = lerp(py, PC.y, settle);
 
         // Gentle bobbing overlay (slightly reduced amplitude for calmer motion)
         const bob = Math.sin(t * 1.2) * 0.2;
 
-        // Hyperjump phase a bit tighter and later for a snappier exit
-        const hyper = smootherstep(0.84, 1.0, s);
+        // Hyperjump triggers just after center settle for a center-vanish effect
+        const hyper = smootherstep(0.7, 1.0, s);
         const hyperDepth = 8;                 // how far into Z it dives
         const hyperScale = 1 - hyper * 0.6;   // scale down as it jumps
 
