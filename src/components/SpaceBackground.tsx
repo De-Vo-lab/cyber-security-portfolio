@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Star {
   x: number;
@@ -11,6 +11,12 @@ export default function SpaceBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const starsRef = useRef<Star[]>([]);
   const speedRef = useRef(0.5);
+  const [warp, setWarp] = useState<number>(1);
+
+  useEffect(() => {
+    // base speed * warp level
+    speedRef.current = 0.5 * warp;
+  }, [warp]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -87,10 +93,32 @@ export default function SpaceBackground() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
-      style={{ background: 'black' }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ background: 'black' }}
+      />
+      {/* Warp Controls */}
+      <div className="fixed bottom-6 inset-x-0 z-20 flex justify-center">
+        <div className="flex items-center gap-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 text-white">
+          <button
+            aria-label="Decrease warp"
+            onClick={() => setWarp((w) => Math.max(1, w - 1))}
+            className="h-8 w-8 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10 transition"
+          >
+            –
+          </button>
+          <span className="text-sm tracking-wide">WARP {warp}</span>
+          <button
+            aria-label="Increase warp"
+            onClick={() => setWarp((w) => Math.min(10, w + 1))}
+            className="h-8 w-8 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10 transition"
+          >
+            +
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
