@@ -152,13 +152,52 @@ export default function Spaceship() {
 
       // Float animation
       if (group) {
-        group.rotation.y += 0.15 * dt; // slow orbit
-        group.position.y = Math.sin(t * 1.2) * 0.25; // gentle bob
-        // mouse parallax
+        // Path animation: right-bottom -> center -> top-left -> back to right-bottom (loop)
+        const speed = 0.12; // overall travel speed
+        const s = (t * speed) % 1; // normalized 0..1 loop
+
+        // Keypoints
+        const P0 = { x: 6, y: -1 };  // right-bottom
+        const P1 = { x: 0, y: 0 };   // center
+        const P2 = { x: -6, y: 2 };  // top-left
+
+        // helpers
+        const smoothstep = (a: number, b: number, x: number) => {
+          const t2 = Math.max(0, Math.min(1, (x - a) / (b - a)));
+          return t2 * t2 * (3 - 2 * t2);
+        };
+        const lerp = (a: number, b: number, tL: number) => a + (b - a) * tL;
+
+        // piecewise interpolate across segments
+        let px = P0.x;
+        let py = P0.y;
+
+        if (s < 1 / 3) {
+          const u = smoothstep(0, 1 / 3, s);
+          px = lerp(P0.x, P1.x, u);
+          py = lerp(P0.y, P1.y, u);
+        } else if (s < 2 / 3) {
+          const u = smoothstep(1 / 3, 2 / 3, s);
+          px = lerp(P1.x, P2.x, u);
+          py = lerp(P1.y, P2.y, u);
+        } else {
+          const u = smoothstep(2 / 3, 1, s);
+          px = lerp(P2.x, P0.x, u);
+          py = lerp(P2.y, P0.y, u);
+        }
+
+        // gentle bobbing overlay
+        const bob = Math.sin(t * 1.2) * 0.25;
+
+        group.position.x = px;
+        group.position.y = py + bob;
+
+        // slow yaw plus mouse parallax
+        group.rotation.y += 0.1 * dt; // subtle orbit
         const targetRotX = mouse.y * 0.25;
-        const targetRotY = mouse.x * 0.4;
+        const targetRotY = mouse.x * 0.35;
         group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
-        group.rotation.y += (targetRotY - group.rotation.y) * 0.05;
+        group.rotation.y += (targetRotY - group.rotation.y) * 0.04;
       }
 
       // Subtle star drift
