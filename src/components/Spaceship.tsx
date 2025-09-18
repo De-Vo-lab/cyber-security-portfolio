@@ -181,7 +181,8 @@ export default function Spaceship() {
 
         // Compute a camera distance that fits the model with some margin
         const halfFovY = THREE.MathUtils.degToRad(camera.fov * 0.5);
-        const distance = (maxSize / (2 * Math.tan(halfFovY))) * 1.25; // 25% margin
+        // Increase margin so the camera frames the model smaller on screen
+        const distance = (maxSize / (2 * Math.tan(halfFovY))) * 2.2; // was 1.25
 
         // Clamp to ensure it never gets too close on small models
         const minDistance = 8;
@@ -229,6 +230,8 @@ export default function Spaceship() {
 
     // Add a smoothed look-at target for the camera to follow the ship
     const lookAtTarget = new THREE.Vector3(0, 0, 0);
+
+    const BASE_SCALE = 0.8; // new: globally shrink visual size a bit
 
     let t = 0;
     const clock = new THREE.Clock();
@@ -316,7 +319,8 @@ export default function Spaceship() {
 
         // Scale down on exit to enhance black hole feel
         const scaled = Math.max(0.2, hyperScale);
-        group.scale.setScalar(scaled);
+        // Apply base downscale so the model appears smaller overall
+        group.scale.setScalar(BASE_SCALE * scaled);
 
         // Engine glow follows and pulses; fade during hyperjump
         const glowOffset = new THREE.Vector3(0.6, -0.05, -0.15);
