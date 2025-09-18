@@ -124,3 +124,11 @@
     cursor: pointer;
   }
 }
+
+/* Hide the hosting/provider badge */
+a[href*="vly.ai"],
+#vly-powered,
+.vly-badge,
+[data-vly-badge] {
+  display: none !important;
+}
