@@ -69,7 +69,7 @@ export default function Spaceship() {
 
     // Load GLB
     const loader = new GLTFLoader();
-    const MODEL_PATH = "/assets/deep_space_9.glb";
+    const MODEL_PATH = "/assets/xwing.glb";
     const group = new THREE.Group();
     scene.add(group);
 
