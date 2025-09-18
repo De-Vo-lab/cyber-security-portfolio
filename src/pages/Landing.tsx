@@ -37,7 +37,7 @@ export default function Landing() {
     }
   > = {
     dopexdev: {
-      title: '🛡️ DopeXDev – Security SIEM Tool',
+      title: 'DopeXDev – Security SIEM Tool',
       duration: 'June 2025 – Present',
       techStack:
         'Tech Stack: Python, Scikit-learn, Flask, Pandas, Regex, Splunk, Microsoft Sentinel, KQL',
@@ -203,35 +203,76 @@ export default function Landing() {
                     </div>
                     <div>
                       <h4 className="text-xl font-semibold mb-3">Technical Skills</h4>
-                      <ul className="list-disc list-inside space-y-1 text-white/80">
+                      <ul className="space-y-3 text-white/80">
                         <li>
-                          SOC Operations: SOC Monitoring, Log Analysis, SIEM (Splunk, IBM QRadar, Microsoft Sentinel), Endpoint
-                          Security, Threat Detection, Incident Response, Alert Analysis, Phishing Investigation, Incident Triage,
-                          Alert Prioritization, Correlation Rule Testing, Workflow Automation (Tines, Slack)
+                          <span className="font-semibold">SOC Operations:</span>
+                          <ul className="list-disc list-inside mt-1 space-y-1">
+                            <li>SOC Monitoring, Log Analysis</li>
+                            <li>SIEM: Splunk, IBM QRadar, Microsoft Sentinel</li>
+                            <li>Endpoint Security, Threat Detection, Incident Response</li>
+                            <li>Alert Analysis, Phishing Investigation, Incident Triage</li>
+                            <li>Alert Prioritization, Correlation Rule Testing</li>
+                            <li>Workflow Automation: Tines, Slack</li>
+                          </ul>
                         </li>
                         <li>
-                          Security Concepts: Threat Intelligence, Network Security, MITRE ATT&CK, Cyber Kill Chain, Security Risk
-                          Analysis, Vulnerability Analysis, DLP Tools, Email Security Analysis, Security Controls Evaluation,
-                          Compliance (ISO 27001), IP Addressing, Subnetting
+                          <span className="font-semibold">Security Concepts:</span>
+                          <ul className="list-disc list-inside mt-1 space-y-1">
+                            <li>Threat Intelligence, Network Security</li>
+                            <li>Frameworks: MITRE ATT&CK, Cyber Kill Chain</li>
+                            <li>Risk & Vulnerability Analysis</li>
+                            <li>DLP Tools, Email Security Analysis</li>
+                            <li>Security Controls Evaluation, ISO 27001 Compliance</li>
+                            <li>IP Addressing, Subnetting</li>
+                          </ul>
                         </li>
                         <li>
-                          AI/ML for Security: Machine Learning Models, Anomaly Detection, Phishing Detection, Suspicious Login Behavior
-                          Detection, Generative AI Fundamentals
+                          <span className="font-semibold">AI/ML for Security:</span>
+                          <ul className="list-disc list-inside mt-1 space-y-1">
+                            <li>Machine Learning Models, Anomaly Detection</li>
+                            <li>Phishing Detection, Suspicious Login Behavior Detection</li>
+                            <li>Generative AI Fundamentals</li>
+                          </ul>
                         </li>
-                        <li>Operating Systems: Linux, Windows Event Logs, Active Directory</li>
                         <li>
-                          Tools & Technologies: Packet Analysis (Wireshark), Pentest Tools (basic exposure), Virtual Machines, Wazuh,
-                          KQL, Regex
+                          <span className="font-semibold">Operating Systems:</span>
+                          <ul className="list-disc list-inside mt-1 space-y-1">
+                            <li>Linux</li>
+                            <li>Windows Event Logs</li>
+                            <li>Active Directory</li>
+                          </ul>
                         </li>
-                        <li>Programming: Python (automation, scripting, Scikit-learn, Flask, Pandas), SQL, C</li>
+                        <li>
+                          <span className="font-semibold">Tools & Technologies:</span>
+                          <ul className="list-disc list-inside mt-1 space-y-1">
+                            <li>Packet Analysis (Wireshark)</li>
+                            <li>Pentest Tools (basic exposure)</li>
+                            <li>Virtual Machines, Wazuh</li>
+                            <li>KQL, Regex</li>
+                          </ul>
+                        </li>
+                        <li>
+                          <span className="font-semibold">Programming:</span>
+                          <ul className="list-disc list-inside mt-1 space-y-1">
+                            <li>Python (automation, scripting, Scikit-learn, Flask, Pandas)</li>
+                            <li>SQL</li>
+                            <li>C</li>
+                          </ul>
+                        </li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="text-xl font-semibold mb-3">Soft Skills</h4>
-                      <p className="text-white/80">
-                        Analytical Thinking, Problem Solving, Attention to Detail, Ticket Handling, Fast Learner, Time Management,
-                        Security Mindset, Team Collaboration
-                      </p>
+                      <ul className="list-disc list-inside space-y-1 text-white/80">
+                        <li>Analytical Thinking</li>
+                        <li>Problem Solving</li>
+                        <li>Attention to Detail</li>
+                        <li>Ticket Handling</li>
+                        <li>Fast Learner</li>
+                        <li>Time Management</li>
+                        <li>Security Mindset</li>
+                        <li>Team Collaboration</li>
+                      </ul>
                     </div>
                     <div>
                       <h4 className="text-xl font-semibold mb-3">Languages</h4>
