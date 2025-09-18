@@ -159,8 +159,8 @@ export default function Spaceship() {
       }
     );
 
-    // Orientation constants: align the ship's "nose" to face left (-X)
-    const ORIENT_YAW = -Math.PI / 2; // base yaw so forward points left
+    // Orientation constants: align the ship's "nose" to face RIGHT (+X)
+    const ORIENT_YAW = Math.PI / 2; // base yaw so forward points right
 
     // Mouse parallax
     const mouse = new THREE.Vector2(0, 0);
@@ -198,8 +198,8 @@ export default function Spaceship() {
         const s = (t * speed) % 1; // 0..1 per pass
 
         // Keypoints and offsets
-        const P0 = { x: 6, y: -1 };    // start (right-bottom, on-screen)
-        const PEND = { x: -10, y: 3 }; // end (far top-left, off-screen)
+        const P0 = { x: -6, y: -1 };   // start from left-bottom (entry stays smooth)
+        const PEND = { x: 10, y: 3 };  // exit to far right-top (hyperjump to the right)
         // Helpers
         const smoothstep = (a: number, b: number, x: number) => {
           const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
@@ -249,7 +249,7 @@ export default function Spaceship() {
         group.scale.setScalar(scaled);
 
         // Engine glow follows and pulses; fade during hyperjump
-        const glowOffset = new THREE.Vector3(0.6, -0.05, -0.15);
+        const glowOffset = new THREE.Vector3(-0.6, -0.05, -0.15);
         const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
         engineLight.position.copy(glowPos);
         engineSprite.position.copy(glowPos);
