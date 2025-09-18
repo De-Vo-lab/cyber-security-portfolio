@@ -1,5 +1,4 @@
 import ContactForm from '@/components/ContactForm';
-import Navigation from '@/components/Navigation';
 import SpaceBackground from '@/components/SpaceBackground';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,6 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
       <SpaceBackground />
-      <Navigation />
       
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative z-10 px-4">
