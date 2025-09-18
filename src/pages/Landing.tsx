@@ -188,11 +188,11 @@ export default function Landing() {
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="skills">Skills</TabsTrigger>
                     <TabsTrigger value="soft-skills">Soft Skills</TabsTrigger>
+                    <TabsTrigger value="certifications">Certifications</TabsTrigger>
                     <TabsTrigger value="languages">Languages</TabsTrigger>
                     <TabsTrigger value="experience">Experience</TabsTrigger>
                     <TabsTrigger value="projects">Projects</TabsTrigger>
                     <TabsTrigger value="education">Education</TabsTrigger>
-                    <TabsTrigger value="certifications">Certifications</TabsTrigger>
                     <TabsTrigger value="leadership">Leadership</TabsTrigger>
                   </TabsList>
 
