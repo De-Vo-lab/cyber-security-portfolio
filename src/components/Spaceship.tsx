@@ -144,6 +144,9 @@ export default function Spaceship() {
     };
     window.addEventListener("resize", onResize);
 
+    // Add a smoothed look-at target for the camera to follow the ship
+    const lookAtTarget = new THREE.Vector3(0, 0, 0);
+
     let t = 0;
     const clock = new THREE.Clock();
     const animate = () => {
@@ -192,12 +195,16 @@ export default function Spaceship() {
         group.position.x = px;
         group.position.y = py + bob;
 
-        // slow yaw plus mouse parallax
+        // smooth yaw plus mouse parallax
         group.rotation.y += 0.1 * dt; // subtle orbit
         const targetRotX = mouse.y * 0.25;
         const targetRotY = mouse.x * 0.35;
         group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
         group.rotation.y += (targetRotY - group.rotation.y) * 0.04;
+
+        // Smoothly steer the camera to look at the spaceship so it never leaves frame
+        lookAtTarget.lerp(group.position, 0.08); // smoothing factor
+        camera.lookAt(lookAtTarget);
       }
 
       // Subtle star drift
