@@ -34,22 +34,29 @@ export default function Spaceship() {
       return; // Exit effect early to avoid runtime errors
     }
 
+    // Add cinematic tone mapping + exposure for better visibility
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
-    // Lights
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x222233, 0.7);
+    // Lights (increase brightness and add subtle ambient)
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x222233, 0.9);
     scene.add(hemi);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.35);
     keyLight.position.set(4, 6, 8);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0x88ccff, 0.8);
+    const rimLight = new THREE.DirectionalLight(0x88ccff, 1.1);
     rimLight.position.set(-6, 2, -4);
     scene.add(rimLight);
+
+    const ambient = new THREE.AmbientLight(0x335577, 0.25);
+    scene.add(ambient);
 
     // Subtle star-like points to complement background
     const starsGeo = new THREE.BufferGeometry();
@@ -73,6 +80,20 @@ export default function Spaceship() {
     const group = new THREE.Group();
     scene.add(group);
 
+    // Engine glow (light + sprite) that follows the ship
+    const engineLight = new THREE.PointLight(0x66aaff, 1.4, 6, 2.0);
+    scene.add(engineLight);
+    const engineSpriteMat = new THREE.SpriteMaterial({
+      color: 0x6fa8ff,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const engineSprite = new THREE.Sprite(engineSpriteMat);
+    engineSprite.scale.set(0.35, 0.35, 0.35);
+    scene.add(engineSprite);
+
     let model: THREE.Object3D | null = null;
     loader.load(
       MODEL_PATH,
@@ -82,8 +103,19 @@ export default function Spaceship() {
           if (obj.isMesh) {
             obj.castShadow = false;
             obj.receiveShadow = false;
-            if (obj.material) {
+            // Style materials for visibility: neutral base + subtle emissive
+            try {
+              const mat = new THREE.MeshStandardMaterial({
+                color: 0xbfc8da,        // soft steel
+                metalness: 0.35,
+                roughness: 0.55,
+                emissive: new THREE.Color(0x1a3cff),
+                emissiveIntensity: 0.12,
+              });
+              obj.material = mat;
               obj.material.transparent = true;
+            } catch {
+              // ignore if replacement fails
             }
           }
         });
@@ -149,6 +181,7 @@ export default function Spaceship() {
 
     let t = 0;
     const clock = new THREE.Clock();
+    let prevPx = 6; // track previous x for banking
     const animate = () => {
       const dt = clock.getDelta();
       t += dt;
@@ -181,12 +214,26 @@ export default function Spaceship() {
         group.position.x = px;
         group.position.y = py + bob;
 
+        // Natural banking based on horizontal velocity
+        const vx = px - prevPx;
+        prevPx = px;
+        const bankTarget = THREE.MathUtils.clamp(-vx * 1.8, -0.45, 0.45);
+        group.rotation.z += (bankTarget - group.rotation.z) * 0.08;
+
         // subtle orbit + mouse parallax
-        group.rotation.y += 0.1 * dt; // base orbit
+        group.rotation.y += 0.08 * dt; // base orbit
         const targetRotX = mouse.y * 0.25;
         const targetRotY = mouse.x * 0.35;
         group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
         group.rotation.y += (targetRotY - group.rotation.y) * 0.04;
+
+        // Engine glow follows slightly behind with shimmer
+        const glowOffset = new THREE.Vector3(0.6, -0.05, -0.15); // trail behind and down a touch
+        const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
+        engineLight.position.copy(glowPos);
+        engineSprite.position.copy(glowPos);
+        engineLight.intensity = 1.2 + Math.sin(t * 12) * 0.15;
+        engineSprite.material.opacity = 0.75 + Math.sin(t * 10) * 0.1;
 
         // keep camera trained on the ship
         lookAtTarget.lerp(group.position, 0.08);
@@ -208,6 +255,7 @@ export default function Spaceship() {
       mount.removeChild(renderer.domElement);
       renderer.dispose();
       starsGeo.dispose();
+      engineSpriteMat.dispose();
     };
   }, []);
 
