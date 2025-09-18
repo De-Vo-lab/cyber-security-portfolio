@@ -40,7 +40,7 @@ export default function Landing() {
       title: 'DopeXDev – Security SIEM Tool',
       duration: 'June 2025 – Present',
       techStack:
-        'Tech Stack: Python, Scikit-learn, Flask, Pandas, Regex, Splunk, Microsoft Sentinel, KQL',
+        'Tech Stack: Python, Scikit-learn, Flask, Pandas, Regex, Splunk, Microsoft Sentinel, KQL, VirusTotal API, urlscan.io API, MXToolbox',
       description: [
         'Designed and developed an AI-powered SIEM tool to detect and classify cybersecurity threats using real-time log data and phishing email patterns.',
         'Integrated machine learning models to identify anomalies, phishing attempts, and suspicious login behaviors with over 92% accuracy.',
@@ -48,6 +48,7 @@ export default function Landing() {
         'Built a lightweight web dashboard using Flask for visualizing alerts, threat categories, and event metadata.',
         'Processed and analyzed structured/unstructured logs (Windows Event Logs, Syslogs, Email headers) to train and validate the threat detection engine.',
         'Mimicked SOC workflows such as incident triage, alert prioritization, and correlation rule testing within the tool.',
+        'Implemented an automated email ingestion pipeline that inspects incoming emails and enriches IOCs (URLs, attachments, headers) using VirusTotal, urlscan.io, and MXToolbox APIs to score reputation and auto-flag suspected phishing.',
       ],
       link: 'https://github.com/your-github-link-here/dopexdev',
     },
