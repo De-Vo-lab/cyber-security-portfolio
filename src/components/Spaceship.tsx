@@ -246,10 +246,25 @@ export default function Spaceship() {
 
         // Keypoints: start bottom-right -> pass through true page center (adjusted left within right-aligned canvas) -> vanish
         const P0 = { x: 5.2, y: -1.0 };  // start at bottom-right
-        // Adjust toward true page center; the canvas sits on the right ~55vw, so offset left.
-        // Add a small aspect-based tweak so very wide screens remain centered.
-        const CENTER_OFFSET_X = -2.85 - Math.max(0, camera.aspect - 1) * 0.35;
-        const PC = { x: CENTER_OFFSET_X, y: 0.15 };  // adjusted center target
+
+        // Compute the true page center inside the right-fixed canvas:
+        // Convert the page center to canvas-local NDC X using the canvas width fraction,
+        // then map NDC -> world X at the current camera distance so the ship passes through the true page center.
+        const canvasFraction =
+          (mount.clientWidth || window.innerWidth) / window.innerWidth;
+        const ndcX = THREE.MathUtils.clamp(
+          1 - 1 / Math.max(0.1, canvasFraction), // e.g. for 0.55 => ~ -0.818
+          -0.95,
+          0.95
+        );
+        const depth = Math.max(0.001, camera.position.z);
+        const halfWidthWorld =
+          Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) *
+          depth *
+          camera.aspect;
+        const centerWorldX = ndcX * halfWidthWorld;
+
+        const PC = { x: centerWorldX, y: 0.1 };  // true page center in world coords (slightly above 0 for aesthetic framing)
 
         // Helpers
         const smootherstep = (a: number, b: number, x: number) => {
