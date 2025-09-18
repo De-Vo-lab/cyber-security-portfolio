@@ -191,7 +191,8 @@ export default function Landing() {
                     <TabsTrigger value="languages">Languages</TabsTrigger>
                     <TabsTrigger value="experience">Experience</TabsTrigger>
                     <TabsTrigger value="projects">Projects</TabsTrigger>
-                    <TabsTrigger value="education">Education & Certifications</TabsTrigger>
+                    <TabsTrigger value="education">Education</TabsTrigger>
+                    <TabsTrigger value="certifications">Certifications</TabsTrigger>
                     <TabsTrigger value="leadership">Leadership</TabsTrigger>
                   </TabsList>
 
@@ -369,36 +370,25 @@ export default function Landing() {
                   </TabsContent>
 
                   <TabsContent value="education" className="mt-6">
-                    <h3 className="text-2xl font-semibold mb-4">Education & Certifications</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div>
-                        <h4 className="text-xl font-semibold mb-3">Education</h4>
-                        <ul className="list-disc list-inside space-y-2 text-white/80">
-                          <li>B.Tech in Computer Science — APJAKTU (First Class) | 2020–2024</li>
-                          <li>College: SNMIMT SNM Institute of Management and Technology</li>
-                          <li>Plus Two in Computer Science — MES P Vemballur High School | 2018–2020</li>
-                          <li>Class X — T.H.S Kodungallur | 2017–2018</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-semibold mb-3">Certifications</h4>
-                        <ul className="list-disc list-inside space-y-2 text-white/80">
-                          <li>CompTIA Security+ — CompTIA | 08/2025 (Credential ID: COMP001022645550)</li>
-                          <li>Generative AI Fundamentals — GeeksforGeeks</li>
-                          <li>Google Cybersecurity Professional — Coursera | 03/2024</li>
-                          <li>Ethical Hacking Associate — RedTeam</li>
-                          <li>Ethical Hacking Essentials — EC-Council</li>
-                          <li>Foundations of Cybersecurity — Coursera | 12/2023</li>
-                          <li>Play It Safe: Manage Security Risks — Coursera | 01/2024</li>
-                          <li>Connect and Protect: Networks & Network Security — Coursera | 01/2024</li>
-                          <li>Tools of the Trade: Linux and SQL — Coursera | 02/2024</li>
-                          <li>Assets, Threats, and Vulnerabilities — Coursera | 03/2024</li>
-                          <li>Sound the Alarm: Detection and Response — Coursera | 03/2024</li>
-                          <li>Automate Cybersecurity Tasks with Python — Coursera | 03/2024</li>
-                          <li>Put It to Work: Prepare for Cybersecurity Jobs — Coursera | 03/2024</li>
-                        </ul>
-                      </div>
-                    </div>
+                    <h3 className="text-2xl font-semibold mb-4">Education</h3>
+                    <ul className="list-disc list-inside space-y-2 text-white/80">
+                      <li>B.Tech in Computer Science — APJAKTU (First Class) | 2020–2024</li>
+                      <li>College: SNMIMT SNM Institute of Management and Technology</li>
+                      <li>Plus Two in Computer Science — MES P Vemballur High School | 2018–2020</li>
+                      <li>Class X — T.H.S Kodungallur | 2017–2018</li>
+                    </ul>
+                  </TabsContent>
+
+                  <TabsContent value="certifications" className="mt-6">
+                    <h3 className="text-2xl font-semibold mb-4">Certifications</h3>
+                    <ul className="list-disc list-inside space-y-2 text-white/80">
+                      <li>CompTIA Security+ — CompTIA | 08/2025 (Credential ID: COMP001022645550)</li>
+                      <li>Generative AI Fundamentals — GeeksforGeeks</li>
+                      <li>Google Cybersecurity Professional — Coursera | 03/2024</li>
+                      <li>Ethical Hacking Associate — RedTeam</li>
+                      <li>Ethical Hacking Essentials — EC-Council</li>
+                      <li>Foundations of Cybersecurity — Coursera | 12/2023</li>
+                    </ul>
                   </TabsContent>
 
                   <TabsContent value="leadership" className="mt-6">
