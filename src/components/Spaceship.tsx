@@ -11,6 +11,7 @@ export default function Spaceship() {
   const sketchRef = useRef<HTMLDivElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const mouse = useRef({ x: 0, y: 0 });
+  const failedRef = useRef(false); // Track if model load/rendering failed
 
   useEffect(() => {
     if (!USE_SKETCHFAB) return;
@@ -111,7 +112,8 @@ export default function Spaceship() {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.warn("WebGL not available or context creation failed. Spaceship disabled.", err);
-      return; // Exit effect early to avoid runtime errors
+      failedRef.current = true; // mark as failed early
+      return;
     }
 
     // Improve visual smoothness/perception with better tone mapping
@@ -119,24 +121,24 @@ export default function Spaceship() {
     renderer.toneMappingExposure = 1.2;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-mount.appendChild(renderer.domElement);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    mount.appendChild(renderer.domElement);
 
-// Add window event listeners for resize and mouse movement
-const onResize = () => {
-  const w = (mount?.clientWidth || window.innerWidth);
-  const h = (mount?.clientHeight || window.innerHeight);
-  renderer.setSize(w, h);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-};
-window.addEventListener("resize", onResize);
+    // Add window event listeners for resize and mouse movement
+    const onResize = () => {
+      const w = (mount?.clientWidth || window.innerWidth);
+      const h = (mount?.clientHeight || window.innerHeight);
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    window.addEventListener("resize", onResize);
 
-const onMouseMove = (e: MouseEvent) => {
-  mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
-};
-window.addEventListener("mousemove", onMouseMove);
+    const onMouseMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
+    };
+    window.addEventListener("mousemove", onMouseMove);
 
     // Lights
     const hemi = new THREE.HemisphereLight(0xffffff, 0x222233, 0.7);
@@ -175,10 +177,27 @@ window.addEventListener("mousemove", onMouseMove);
     // ADD: cache materials for per-frame fade
     const materials: Array<THREE.Material> = [];
 
+    // ADD: Load timeout to gracefully fail if model stalls
+    let loadTimeoutId: number | null = window.setTimeout(() => {
+      if (failedRef.current) return;
+      failedRef.current = true;
+      try { if (typeof raf !== "undefined" && raf) cancelAnimationFrame(raf); } catch {}
+      try { window.removeEventListener("resize", onResize); } catch {}
+      try { window.removeEventListener("mousemove", onMouseMove); } catch {}
+      try {
+        if (renderer.domElement && renderer.domElement.parentElement) {
+          renderer.domElement.parentElement.removeChild(renderer.domElement);
+        }
+      } catch {}
+      try { renderer.dispose(); } catch {}
+      try { starsGeo.dispose(); } catch {}
+    }, 15000);
+
     let model: THREE.Object3D | null = null;
     loader.load(
       MODEL_PATH,
       (gltf) => {
+        if (failedRef.current) return; // if we already failed, ignore
         model = gltf.scene;
         model.traverse((obj: any) => {
           if (obj.isMesh) {
@@ -222,11 +241,41 @@ window.addEventListener("mousemove", onMouseMove);
 
         // Add to scene after fit
         group.add(gltf.scene);
+
+        // Model loaded, clear timeout
+        if (loadTimeoutId !== null) {
+          window.clearTimeout(loadTimeoutId);
+          loadTimeoutId = null;
+        }
       },
       undefined,
       (err) => {
         // eslint-disable-next-line no-console
         console.error("Failed to load spaceship model:", err);
+        failedRef.current = true;
+        // On error, stop animation and clean up to prevent wasted cycles
+        try {
+          cancelAnimationFrame(raf);
+        } catch {}
+        try {
+          window.removeEventListener("resize", onResize);
+          window.removeEventListener("mousemove", onMouseMove);
+        } catch {}
+        try {
+          if (renderer.domElement && renderer.domElement.parentElement) {
+            renderer.domElement.parentElement.removeChild(renderer.domElement);
+          }
+        } catch {}
+        try {
+          renderer.dispose();
+        } catch {}
+        try {
+          starsGeo.dispose();
+        } catch {}
+        if (loadTimeoutId !== null) {
+          window.clearTimeout(loadTimeoutId);
+          loadTimeoutId = null;
+        }
       }
     );
 
@@ -299,16 +348,16 @@ window.addEventListener("mousemove", onMouseMove);
 
         // APPLY OFFSET so the entire path is shifted up/left
         group.position.set(px + X_OFFSET, py + Y_OFFSET + bob, pz);
-// Update lastPosX after applying new position for correct banking
-lastPosX = px;
+        // Update lastPosX after applying new position for correct banking
+        lastPosX = px;
 
         // Natural banking with damping
         group.rotation.z += (bankTarget - group.rotation.z) * Math.min(1, 8 * dt);
 
         // subtle orbit + mouse parallax (damped on exit)
         group.rotation.y += 0.1 * dt; // base orbit
-const targetRotX = mouse.current.y * 0.25 * exitFactor;
-const targetRotY = mouse.current.x * 0.35 * exitFactor;
+        const targetRotX = mouse.current.y * 0.25 * exitFactor;
+        const targetRotY = mouse.current.x * 0.35 * exitFactor;
         group.rotation.x += (targetRotX - group.rotation.x) * Math.min(1, 5 * dt);
         group.rotation.y += (targetRotY - group.rotation.y) * Math.min(1, 4 * dt);
 
@@ -352,6 +401,10 @@ const targetRotY = mouse.current.x * 0.35 * exitFactor;
     let raf = requestAnimationFrame(animate);
 
     return () => {
+      if (loadTimeoutId !== null) {
+        window.clearTimeout(loadTimeoutId); // clear load timeout on unmount
+        loadTimeoutId = null;
+      }
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("mousemove", onMouseMove);
