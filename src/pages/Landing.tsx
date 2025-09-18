@@ -186,6 +186,9 @@ export default function Landing() {
                 <Tabs defaultValue="overview" className="w-full">
                   <TabsList className="flex flex-wrap gap-2 bg-white/10 border border-white/10">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="skills">Skills</TabsTrigger>
+                    <TabsTrigger value="soft-skills">Soft Skills</TabsTrigger>
+                    <TabsTrigger value="languages">Languages</TabsTrigger>
                     <TabsTrigger value="experience">Experience</TabsTrigger>
                     <TabsTrigger value="projects">Projects</TabsTrigger>
                     <TabsTrigger value="education">Education & Certifications</TabsTrigger>
@@ -201,8 +204,11 @@ export default function Landing() {
                         security posture, leveraging expertise in SIEM tools, AI-driven security, and incident response workflows.
                       </p>
                     </div>
+                  </TabsContent>
+
+                  <TabsContent value="skills" className="mt-6 space-y-6">
                     <div>
-                      <h4 className="text-xl font-semibold mb-3">Technical Skills</h4>
+                      <h4 className="text-2xl font-semibold mb-3">Technical Skills</h4>
                       <ul className="space-y-3 text-white/80">
                         <li>
                           <span className="font-semibold">SOC Operations:</span>
@@ -220,7 +226,7 @@ export default function Landing() {
                           <ul className="list-disc list-inside mt-1 space-y-1">
                             <li>Threat Intelligence, Network Security</li>
                             <li>Frameworks: MITRE ATT&CK, Cyber Kill Chain</li>
-                            <li>Risk & Vulnerability Analysis</li>
+                            <li>Risk &amp; Vulnerability Analysis</li>
                             <li>DLP Tools, Email Security Analysis</li>
                             <li>Security Controls Evaluation, ISO 27001 Compliance</li>
                             <li>IP Addressing, Subnetting</li>
@@ -243,7 +249,7 @@ export default function Landing() {
                           </ul>
                         </li>
                         <li>
-                          <span className="font-semibold">Tools & Technologies:</span>
+                          <span className="font-semibold">Tools &amp; Technologies:</span>
                           <ul className="list-disc list-inside mt-1 space-y-1">
                             <li>Packet Analysis (Wireshark)</li>
                             <li>Pentest Tools (basic exposure)</li>
@@ -261,27 +267,29 @@ export default function Landing() {
                         </li>
                       </ul>
                     </div>
-                    <div>
-                      <h4 className="text-xl font-semibold mb-3">Soft Skills</h4>
-                      <ul className="list-disc list-inside space-y-1 text-white/80">
-                        <li>Analytical Thinking</li>
-                        <li>Problem Solving</li>
-                        <li>Attention to Detail</li>
-                        <li>Ticket Handling</li>
-                        <li>Fast Learner</li>
-                        <li>Time Management</li>
-                        <li>Security Mindset</li>
-                        <li>Team Collaboration</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-semibold mb-3">Languages</h4>
-                      <ul className="list-disc list-inside space-y-1 text-white/80">
-                        <li>English (Fluent)</li>
-                        <li>Malayalam (Native)</li>
-                        <li>Hindi (Conversational)</li>
-                      </ul>
-                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="soft-skills" className="mt-6">
+                    <h3 className="text-2xl font-semibold mb-3">Soft Skills</h3>
+                    <ul className="list-disc list-inside space-y-1 text-white/80">
+                      <li>Analytical Thinking</li>
+                      <li>Problem Solving</li>
+                      <li>Attention to Detail</li>
+                      <li>Ticket Handling</li>
+                      <li>Fast Learner</li>
+                      <li>Time Management</li>
+                      <li>Security Mindset</li>
+                      <li>Team Collaboration</li>
+                    </ul>
+                  </TabsContent>
+
+                  <TabsContent value="languages" className="mt-6">
+                    <h3 className="text-2xl font-semibold mb-3">Languages</h3>
+                    <ul className="list-disc list-inside space-y-1 text-white/80">
+                      <li>English (Fluent)</li>
+                      <li>Malayalam (Native)</li>
+                      <li>Hindi (Conversational)</li>
+                    </ul>
                   </TabsContent>
 
                   <TabsContent value="experience" className="mt-6">
