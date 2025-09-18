@@ -288,7 +288,8 @@ export default function Landing() {
                     <ul className="list-disc list-inside space-y-1 text-white/80">
                       <li>English (Fluent)</li>
                       <li>Malayalam (Native)</li>
-                      <li>Hindi (Conversational)</li>
+                      <li>Hindi (Fluent)</li>
+                      <li>Tamil (Conversational)</li>
                     </ul>
                   </TabsContent>
 
