@@ -2,7 +2,87 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
+// Add a top-level feature flag to use Sketchfab embed instead of the GLB renderer
+const USE_SKETCHFAB = true;
+
 export default function Spaceship() {
+  // Inject an early return path that renders the Sketchfab embed when enabled
+  // Subtle bobbing + mouse parallax for presence, keeping pointer-events none
+  const sketchRef = useRef<HTMLDivElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const mouse = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!USE_SKETCHFAB) return;
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
+    };
+    window.addEventListener("mousemove", onMouseMove);
+
+    let t = 0;
+    const animate = () => {
+      t += 0.016;
+      const bob = Math.sin(t * 1.2) * 6; // px
+      const parallaxX = mouse.current.x * 6;
+      const parallaxY = mouse.current.y * 4;
+
+      if (sketchRef.current) {
+        sketchRef.current.style.transform = `translate3d(${parallaxX}px, ${bob + parallaxY}px, 0)`;
+        sketchRef.current.style.opacity = "1";
+      }
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  if (USE_SKETCHFAB) {
+    return (
+      <div
+        className="pointer-events-none fixed inset-0 z-10"
+        style={{ width: "100vw", minWidth: 320, maxWidth: "100vw" }}
+        aria-hidden="true"
+      >
+        <div
+          ref={sketchRef}
+          className="absolute"
+          // Positioned near the right-bottom; adjust as desired
+          style={{
+            right: "6%",
+            bottom: "12%",
+            width: "520px",
+            height: "360px",
+            willChange: "transform, opacity",
+            transform: "translate3d(0,0,0)",
+            opacity: 0,
+          }}
+        >
+          <iframe
+            title="Spaceship"
+            src="https://sketchfab.com/models/112f726de5944fdc9b7b9bc5b3f9d4e3/embed?preload=1&transparent=1"
+            frameBorder="0"
+            allow="autoplay; fullscreen; xr-spatial-tracking"
+            allowFullScreen
+            // Keep it non-interactive to match existing behavior; I can enable interactions if you want
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "0",
+              pointerEvents: "none",
+              filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.6))",
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   const mountRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -39,8 +119,24 @@ export default function Spaceship() {
     renderer.toneMappingExposure = 1.2;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    mount.appendChild(renderer.domElement);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+mount.appendChild(renderer.domElement);
+
+// Add window event listeners for resize and mouse movement
+const onResize = () => {
+  const w = (mount?.clientWidth || window.innerWidth);
+  const h = (mount?.clientHeight || window.innerHeight);
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+};
+window.addEventListener("resize", onResize);
+
+const onMouseMove = (e: MouseEvent) => {
+  mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
+};
+window.addEventListener("mousemove", onMouseMove);
 
     // Lights
     const hemi = new THREE.HemisphereLight(0xffffff, 0x222233, 0.7);
@@ -135,25 +231,6 @@ export default function Spaceship() {
     );
 
     // Mouse parallax
-    const mouse = new THREE.Vector2(0, 0);
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = mount.getBoundingClientRect();
-      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-    };
-    window.addEventListener("mousemove", onMouseMove);
-
-    // Resize
-    const onResize = () => {
-      const w = mount.clientWidth || window.innerWidth;
-      const h = mount.clientHeight || window.innerHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener("resize", onResize);
-
-    // Add a smoothed look-at target for the camera to follow the ship
     const lookAtTarget = new THREE.Vector3(0, 0, 0);
 
     // Track previous X to compute horizontal velocity for banking
@@ -222,14 +299,16 @@ export default function Spaceship() {
 
         // APPLY OFFSET so the entire path is shifted up/left
         group.position.set(px + X_OFFSET, py + Y_OFFSET + bob, pz);
+// Update lastPosX after applying new position for correct banking
+lastPosX = px;
 
         // Natural banking with damping
         group.rotation.z += (bankTarget - group.rotation.z) * Math.min(1, 8 * dt);
 
         // subtle orbit + mouse parallax (damped on exit)
         group.rotation.y += 0.1 * dt; // base orbit
-        const targetRotX = mouse.y * 0.25 * exitFactor;
-        const targetRotY = mouse.x * 0.35 * exitFactor;
+const targetRotX = mouse.current.y * 0.25 * exitFactor;
+const targetRotY = mouse.current.x * 0.35 * exitFactor;
         group.rotation.x += (targetRotX - group.rotation.x) * Math.min(1, 5 * dt);
         group.rotation.y += (targetRotY - group.rotation.y) * Math.min(1, 4 * dt);
 
