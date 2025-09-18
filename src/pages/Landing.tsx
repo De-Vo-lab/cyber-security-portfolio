@@ -91,7 +91,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-bold mb-8 tracking-tight"
+            className="text-4xl sm:text-5xl md:text-7xl font-bold mb-8 tracking-tight"
           >
             Devarajan
           </motion.h1>
@@ -114,7 +114,7 @@ export default function Landing() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 relative z-10 px-4">
+      <section id="about" className="pt-16 pb-28 md:py-20 relative z-10 px-4">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -406,7 +406,7 @@ export default function Landing() {
 
             {/* Project Details Dialog */}
             <Dialog open={projectOpen} onOpenChange={setProjectOpen}>
-              <DialogContent className="bg-black text-white border border-white/10">
+              <DialogContent className="bg-black text-white border border-white/10 max-h-[85vh] overflow-y-auto sm:max-w-lg">
                 <DialogHeader>
                   <DialogTitle>
                     {selectedProject ? projectsData[selectedProject].title : 'Project'}
@@ -449,7 +449,7 @@ export default function Landing() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 relative z-10 px-4">
+      <section id="contact" className="pt-16 pb-28 md:py-20 relative z-10 px-4">
         <div className="container mx-auto max-w-4xl">
           <motion.h2
             initial={{ opacity: 0, y: 50 }}
