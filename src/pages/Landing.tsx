@@ -37,12 +37,12 @@ export default function Landing() {
     }
   > = {
     dopexdev: {
-      title: 'DopeXDev – Security SIEM Tool',
+      title: 'AI Phish Guard',
       duration: 'June 2025 – Present',
       techStack:
         'Tech Stack: Python, Scikit-learn, Flask, Pandas, Regex, Splunk, Microsoft Sentinel, KQL, VirusTotal API, urlscan.io API, MXToolbox',
       description: [
-        'Designed and developed an AI-powered SIEM tool to detect and classify cybersecurity threats using real-time log data and phishing email patterns.',
+        'Designed and developed "AI Phish Guard" — an AI-powered phishing detection system that monitors inbound emails and related signals to detect and classify threats using real-time patterns.',
         'Integrated machine learning models to identify anomalies, phishing attempts, and suspicious login behaviors with over 92% accuracy.',
         'Leveraged custom KQL queries and log parsing techniques to simulate alert generation in Microsoft Sentinel.',
         'Built a lightweight web dashboard using Flask for visualizing alerts, threat categories, and event metadata.',
