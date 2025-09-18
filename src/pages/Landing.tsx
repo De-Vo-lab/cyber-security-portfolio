@@ -167,7 +167,7 @@ export default function Landing() {
                   asChild
                 >
                   <a
-                    href="https://devarajan.tiiny.site"
+                    href="/assets/Devarajan.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Download my resume"
