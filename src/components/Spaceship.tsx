@@ -76,7 +76,7 @@ export default function Spaceship() {
 
     // Load GLB
     const loader = new GLTFLoader();
-    const MODEL_PATH = "/assets/xwing.glb";
+    const MODEL_PATH = "/assets/racing_ship.glb";
     const group = new THREE.Group();
     scene.add(group);
 
