@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 // Add a top-level feature flag to use Sketchfab embed instead of the GLB renderer
-const USE_SKETCHFAB = true;
+const USE_SKETCHFAB = false;
 
 export default function Spaceship() {
   // Inject an early return path that renders the Sketchfab embed when enabled
