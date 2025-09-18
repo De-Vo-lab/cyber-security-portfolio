@@ -5,23 +5,37 @@ import { motion } from 'framer-motion';
 import { Send } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitMessage = useMutation(api.messages.submit);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast.success('Message sent successfully!', {
-      description: 'Thank you for reaching out. I\'ll get back to you soon.',
-    });
-    
-    setIsSubmitting(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      const name = String(formData.get('name') || '').trim();
+      const email = String(formData.get('email') || '').trim();
+      const message = String(formData.get('message') || '').trim();
+
+      await submitMessage({ name, email, message });
+
+      toast.success('Message sent successfully!', {
+        description: "Thank you for reaching out. I'll get back to you soon.",
+      });
+
+      form.reset();
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to send your message. Please try again.';
+      toast.error('Error', { description: msg });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
