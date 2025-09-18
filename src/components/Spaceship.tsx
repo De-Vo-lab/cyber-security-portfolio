@@ -186,7 +186,8 @@ export default function Spaceship() {
 
     let t = 0;
     const clock = new THREE.Clock();
-    let prevPx = 6; // track previous x for banking
+    // Initialize prevPx to match the starting x position to avoid an initial banking jerk
+    let prevPx = 4; // track previous x for banking (updated to match P0.x)
     const animate = () => {
       const dt = clock.getDelta();
       t += dt;
@@ -197,9 +198,9 @@ export default function Spaceship() {
         const speed = 0.25; // faster pass
         const s = (t * speed) % 1; // 0..1 per pass
 
-        // Keypoints and offsets
-        const P0 = { x: 6, y: -1 };    // start (right-bottom, on-screen)
-        const PEND = { x: -10, y: 3 }; // end (far top-left, off-screen)
+        // Keypoints and offsets (slightly more centered)
+        const P0 = { x: 4, y: -0.6 };   // start (right-bottom, more centered)
+        const PEND = { x: -8, y: 2.2 }; // end (top-left, less extreme)
         // Helpers
         const smoothstep = (a: number, b: number, x: number) => {
           const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
@@ -224,25 +225,25 @@ export default function Spaceship() {
         group.position.y = py + bob;
         group.position.z = -hyper * hyperDepth; // dive deeper into the background
 
-        // Natural banking based on horizontal velocity
+        // Natural banking based on horizontal velocity (more damping for smoothness)
         const vx = px - prevPx;
         prevPx = px;
         const bankTarget = THREE.MathUtils.clamp(-vx * 1.8, -0.45, 0.45);
-        group.rotation.z += (bankTarget - group.rotation.z) * 0.08;
+        group.rotation.z += (bankTarget - group.rotation.z) * 0.06;
 
-        // Base yaw points left; softly converge so it doesn't look backward
+        // Base yaw points left; softly converge so it doesn't look backward (slightly more damping)
         const baseYaw = ORIENT_YAW;
-        group.rotation.y += (baseYaw - group.rotation.y) * 0.06;
+        group.rotation.y += (baseYaw - group.rotation.y) * 0.05;
 
-        // Parallax damped and reduced during hyperjump for a glide-out effect
+        // Parallax damped and reduced during hyperjump for a glide-out effect (more smoothing)
         const parallaxDampen = 1 - hyper * 0.85;
         const targetRotX = (mouse.y * 0.25) * parallaxDampen;
         const targetRotY = (mouse.x * 0.35) * parallaxDampen;
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
-        group.rotation.y += (targetRotY) * 0.04;
+        group.rotation.x += (targetRotX - group.rotation.x) * 0.035;
+        group.rotation.y += (targetRotY) * 0.03;
 
-        // Subtle orbit
-        group.rotation.y += 0.08 * dt * (1 - hyper); // reduce orbit as it exits
+        // Subtle orbit (slightly reduced for steadier motion)
+        group.rotation.y += 0.06 * dt * (1 - hyper); // reduce orbit as it exits
 
         // Scale down on exit to enhance black hole feel
         const scaled = Math.max(0.2, hyperScale);
@@ -257,8 +258,8 @@ export default function Spaceship() {
         engineLight.intensity = baseIntensity * (1 - hyper * 0.85);
         engineSprite.material.opacity = (0.75 + Math.sin(t * 10) * 0.1) * (1 - hyper * 0.9);
 
-        // Keep camera trained on the ship
-        lookAtTarget.lerp(group.position, 0.12); // slightly snappier to keep it visible
+        // Keep camera trained on the ship (slightly smoother tracking)
+        lookAtTarget.lerp(group.position, 0.1);
         camera.lookAt(lookAtTarget);
       }
 
