@@ -128,32 +128,32 @@ export default function Landing() {
                 <p className="text-white/60">Thrissur, Kerala, India</p>
               </div>
               <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-white/80">
-                <a href="tel:+918330857529" className="inline-flex items-center gap-2 hover:text-white transition">
-                  <Phone className="w-4 h-4" /> +91 8330857529
+                <a href="tel:+918330857529" className="inline-flex items-center gap-2 hover:text-white transition group">
+                  <Phone className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" /> +91 8330857529
                 </a>
                 <span className="opacity-40">•</span>
-                <a href="mailto:devarajanpm79@gmail.com" className="inline-flex items-center gap-2 hover:text-white transition">
-                  <Mail className="w-4 h-4" /> devarajanpm79@gmail.com
+                <a href="mailto:devarajanpm79@gmail.com" className="inline-flex items-center gap-2 hover:text-white transition group">
+                  <Mail className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" /> devarajanpm79@gmail.com
                 </a>
                 <span className="opacity-40">•</span>
                 <a
                   href="https://www.linkedin.com/in/devarajan-p-m/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 hover:text-white transition"
+                  className="inline-flex items-center gap-2 hover:text-white transition group"
                 >
-                  <Linkedin className="w-4 h-4" /> LinkedIn
-                  <ExternalLink className="w-3 h-3" />
+                  <Linkedin className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" /> LinkedIn
+                  <ExternalLink className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                 </a>
                 <span className="opacity-40">•</span>
                 <a
                   href="https://www.github.com/devarajan-here"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 hover:text-white transition"
+                  className="inline-flex items-center gap-2 hover:text-white transition group"
                 >
-                  <Github className="w-4 h-4" /> GitHub
-                  <ExternalLink className="w-3 h-3" />
+                  <Github className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" /> GitHub
+                  <ExternalLink className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                 </a>
                 <span className="opacity-40">•</span>
                 <span className="inline-flex items-center gap-2">
@@ -488,21 +488,21 @@ export default function Landing() {
                 <Button
                   size="icon"
                   variant="outline"
-                  className="bg-transparent border-white/20 text-white hover:bg-white/10"
+                  className="bg-transparent border-white/20 text-white hover:bg-white/10 group"
                   asChild
                 >
                   <a href="https://www.linkedin.com/in/devarajan-p-m/" target="_blank" rel="noopener noreferrer" aria-label="Open LinkedIn profile">
-                    <Linkedin className="w-5 h-5" />
+                    <Linkedin className="w-5 h-5 transition-transform group-hover:scale-110" />
                   </a>
                 </Button>
                 <Button
                   size="icon"
                   variant="outline"
-                  className="bg-transparent border-white/20 text-white hover:bg-white/10"
+                  className="bg-transparent border-white/20 text-white hover:bg-white/10 group"
                   asChild
                 >
                   <a href="https://www.github.com/devarajan-here" target="_blank" rel="noopener noreferrer" aria-label="Open GitHub profile">
-                    <Github className="w-5 h-5" />
+                    <Github className="w-5 h-5 transition-transform group-hover:scale-110" />
                   </a>
                 </Button>
               </div>
