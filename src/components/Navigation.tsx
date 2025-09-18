@@ -1,15 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useAuth } from '@/hooks/use-auth';
 import { motion } from 'framer-motion';
-import { Menu, User } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, user, signOut } = useAuth();
-  const navigate = useNavigate();
 
   const navItems = [
     { href: '#about', label: 'About' },
@@ -58,34 +54,8 @@ export default function Navigation() {
           ))}
         </div>
 
+        {/* Right controls: remove auth buttons, keep only mobile menu */}
         <div className="flex items-center gap-4">
-          {isAuthenticated ? (
-            <div className="hidden md:flex items-center gap-2">
-              <span className="text-white/80 text-sm">
-                {user?.name || user?.email || 'User'}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => signOut()}
-                className="bg-transparent border-white/20 text-white hover:bg-white/10"
-              >
-                Sign Out
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/auth')}
-              className="hidden md:flex bg-transparent border-white/20 text-white hover:bg-white/10"
-            >
-              <User className="w-4 h-4 mr-2" />
-              Sign In
-            </Button>
-          )}
-
-          {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden text-white">
@@ -103,31 +73,6 @@ export default function Navigation() {
                     {item.label}
                   </button>
                 ))}
-                {isAuthenticated ? (
-                  <div className="pt-4 border-t border-white/10">
-                    <p className="text-white/80 text-sm mb-2">
-                      {user?.name || user?.email || 'User'}
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => signOut()}
-                      className="bg-transparent border-white/20 text-white hover:bg-white/10"
-                    >
-                      Sign Out
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate('/auth')}
-                    className="bg-transparent border-white/20 text-white hover:bg-white/10 mt-4"
-                  >
-                    <User className="w-4 h-4 mr-2" />
-                    Sign In
-                  </Button>
-                )}
               </div>
             </SheetContent>
           </Sheet>
