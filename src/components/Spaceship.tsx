@@ -103,19 +103,19 @@ export default function Spaceship() {
           if (obj.isMesh) {
             obj.castShadow = false;
             obj.receiveShadow = false;
-            // Style materials for visibility: neutral base + subtle emissive
-            try {
-              const mat = new THREE.MeshStandardMaterial({
-                color: 0xbfc8da,        // soft steel
-                metalness: 0.35,
-                roughness: 0.55,
-                emissive: new THREE.Color(0x1a3cff),
-                emissiveIntensity: 0.12,
-              });
-              obj.material = mat;
-              obj.material.transparent = true;
-            } catch {
-              // ignore if replacement fails
+            // Preserve original materials & textures from the GLB instead of replacing them.
+            // Also avoid unintended transparency which can wash out colors.
+            const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+            for (const m of mats) {
+              if (m && typeof m === "object" && "transparent" in m) {
+                (m as any).transparent = false;
+                if ("opacity" in m && typeof (m as any).opacity === "number") {
+                  (m as any).opacity = 1;
+                }
+                if ("needsUpdate" in m) {
+                  (m as any).needsUpdate = true;
+                }
+              }
             }
           }
         });
