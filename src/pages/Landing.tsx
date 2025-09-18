@@ -56,7 +56,7 @@ export default function Landing() {
         'Developed a Python-based tool to detect and mitigate risks from malicious URLs and embedded content.',
         'Demonstrated threat detection logic, link scanning, and basic malware signature analysis.',
       ],
-      link: 'https://github.com/your-github-link-here/malware-analyzer',
+      link: 'https://github.com/devarajan-here/Malware-analyzer',
     },
     'dev-ai': {
       title: 'Dev-AI Interview Assistant Tool',
@@ -65,6 +65,7 @@ export default function Landing() {
         'Developed an AI-powered Python application designed to assist with interview preparation by providing relevant questions, real-time feedback, and practice sessions.',
         'Utilized natural language processing (NLP) techniques and OpenAI API to simulate real interview scenarios, improving user communication and problem-solving skills.',
       ],
+      link: 'https://github.com/devarajan-here/Interview-Cracker-DopeXDev',
     },
     'students-corner': {
       title: 'Students Corner',
@@ -74,7 +75,7 @@ export default function Landing() {
         'Designed a centralized communication platform to improve information sharing between students and educators.',
         'Features include discussion forums, announcements, and resource-sharing modules.',
       ],
-      link: 'https://github.com/your-github-link-here/students-corner',
+      link: 'https://github.com/devarajan-here/students-corner',
     },
   };
 
