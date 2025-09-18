@@ -42,13 +42,10 @@ export default function Landing() {
       techStack:
         'Tech Stack: Python, Scikit-learn, Flask, Pandas, Regex, Splunk, Microsoft Sentinel, KQL, VirusTotal API, urlscan.io API, MXToolbox',
       description: [
-        'Designed and developed "AI Phish Guard" — an AI-powered phishing detection system that monitors inbound emails and related signals to detect and classify threats using real-time patterns.',
-        'Integrated machine learning models to identify anomalies, phishing attempts, and suspicious login behaviors with over 92% accuracy.',
-        'Leveraged custom KQL queries and log parsing techniques to simulate alert generation in Microsoft Sentinel.',
-        'Built a lightweight web dashboard using Flask for visualizing alerts, threat categories, and event metadata.',
-        'Processed and analyzed structured/unstructured logs (Windows Event Logs, Syslogs, Email headers) to train and validate the threat detection engine.',
-        'Mimicked SOC workflows such as incident triage, alert prioritization, and correlation rule testing within the tool.',
-        'Implemented an automated email ingestion pipeline that inspects incoming emails and enriches IOCs (URLs, attachments, headers) using VirusTotal, urlscan.io, and MXToolbox APIs to score reputation and auto-flag suspected phishing.',
+        'AI-powered phishing detection system that monitors inbound emails and related signals.',
+        'Uses ML and log analysis to spot anomalies, phishing attempts, and risky login behaviors (~92% accuracy).',
+        'Simulates Sentinel alerts with custom KQL; Flask dashboard visualizes alerts and metadata.',
+        'Automated email ingestion enriches IOCs (URLs, headers, attachments) via VirusTotal, urlscan.io, and MXToolbox to score reputation and auto-flag threats.',
       ],
       link: 'https://github.com/your-github-link-here/dopexdev',
     },
@@ -166,7 +163,7 @@ export default function Landing() {
               <div className="mt-6 flex justify-center">
                 <Button
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="bg-transparent border-white/20 text-white hover:bg-white/10"
                   asChild
                 >
                   <a
