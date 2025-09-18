@@ -73,6 +73,9 @@ export default function Spaceship() {
     const group = new THREE.Group();
     scene.add(group);
 
+    // ADD: cache materials for per-frame fade
+    const materials: Array<THREE.Material> = [];
+
     let model: THREE.Object3D | null = null;
     loader.load(
       MODEL_PATH,
@@ -84,6 +87,9 @@ export default function Spaceship() {
             obj.receiveShadow = false;
             if (obj.material) {
               obj.material.transparent = true;
+              // Ensure proper blending for fade
+              obj.material.depthWrite = false;
+              materials.push(obj.material);
             }
           }
         });
@@ -155,14 +161,14 @@ export default function Spaceship() {
 
       // Float animation
       if (group) {
-        // Entry -> Center -> Exit-beyond (off-screen) then repeat
+        // Entry -> Center -> Exit-beyond then repeat
         const speed = 0.14;
         const s = (t * speed) % 1; // 0..1 per full pass
 
         // Key points
         const P0 = { x: 6, y: -1 };      // start at right-bottom
-        const PC = { x: 0, y: 0.2 };     // pass through center (slightly above)
-        const PEND = { x: -12, y: 2 };   // far top-left off-screen "beyond space"
+        const PC = { x: 0, y: 0.2 };     // pass through center
+        const PEND = { x: -12, y: 2 };   // far top-left
 
         // helpers
         const smoothstep = (a: number, b: number, x: number) => {
@@ -185,6 +191,11 @@ export default function Spaceship() {
           py = lerp(PC.y, PEND.y, u);
           // accelerate deeper to feel like getting pulled into a black hole
           pz = lerp(-1.2, -6, u);
+          // ADD: push even deeper in the last 10% for the "black hole" feel
+          if (s >= 0.9) {
+            const deepU = (s - 0.9) / 0.1; // 0..1
+            pz = lerp(pz, -12, deepU);
+          }
         }
 
         // gentle bobbing overlay
@@ -202,6 +213,31 @@ export default function Spaceship() {
         // keep camera trained on the ship
         lookAtTarget.lerp(group.position, 0.08);
         camera.lookAt(lookAtTarget);
+
+        // ADD: smooth exit fade-out and entrance fade-in to avoid visible "pop"
+        // Fade in for first 8% of the cycle, fade out for last 10%
+        let opacity = 1;
+        if (s < 0.08) {
+          opacity = smoothstep(0, 1, s / 0.08);      // 0 -> 1
+        } else if (s > 0.9) {
+          opacity = smoothstep(1, 0, (s - 0.9) / 0.1); // 1 -> 0
+        }
+
+        // Apply opacity to cached materials
+        for (const m of materials) {
+          m.opacity = opacity;
+          m.transparent = true;
+          m.depthWrite = false;
+          m.needsUpdate = true;
+        }
+
+        // Scale with opacity for a nicer vanish/appear
+        const baseScale = 1;
+        const scaled = 0.7 + 0.3 * opacity; // 0.7 at fade-out, 1 at full
+        group.scale.setScalar(baseScale * scaled);
+
+        // Optionally hide at near-zero opacity to avoid any flicker on wrap
+        group.visible = opacity > 0.03;
       }
 
       // Subtle star drift
