@@ -1,9 +1,8 @@
 import ContactForm from '@/components/ContactForm';
 import SpaceBackground from '@/components/SpaceBackground';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { motion } from 'framer-motion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Calendar, 
   ExternalLink, 
@@ -13,9 +12,74 @@ import {
   MapPin, 
   Phone 
 } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function Landing() {
+  // Project modal state and data
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const projectsData: Record<
+    string,
+    {
+      title: string;
+      duration?: string;
+      techStack?: string;
+      description: string[];
+      link?: string;
+    }
+  > = {
+    dopexdev: {
+      title: '🛡️ DopeXDev – Security SIEM Tool',
+      duration: 'June 2025 – Present',
+      techStack:
+        'Tech Stack: Python, Scikit-learn, Flask, Pandas, Regex, Splunk, Microsoft Sentinel, KQL',
+      description: [
+        'Designed and developed an AI-powered SIEM tool to detect and classify cybersecurity threats using real-time log data and phishing email patterns.',
+        'Integrated machine learning models to identify anomalies, phishing attempts, and suspicious login behaviors with over 92% accuracy.',
+        'Leveraged custom KQL queries and log parsing techniques to simulate alert generation in Microsoft Sentinel.',
+        'Built a lightweight web dashboard using Flask for visualizing alerts, threat categories, and event metadata.',
+        'Processed and analyzed structured/unstructured logs (Windows Event Logs, Syslogs, Email headers) to train and validate the threat detection engine.',
+        'Mimicked SOC workflows such as incident triage, alert prioritization, and correlation rule testing within the tool.',
+      ],
+      link: 'https://github.com/your-github-link-here/dopexdev',
+    },
+    'malware-analyzer': {
+      title: 'Malware Analyzer',
+      techStack: 'Tech Stack: Python',
+      description: [
+        'Developed a Python-based tool to detect and mitigate risks from malicious URLs and embedded content.',
+        'Demonstrated threat detection logic, link scanning, and basic malware signature analysis.',
+      ],
+      link: 'https://github.com/your-github-link-here/malware-analyzer',
+    },
+    'dev-ai': {
+      title: 'Dev-AI Interview Assistant Tool',
+      techStack: 'Tech Stack: Python, OpenAI API, NLP',
+      description: [
+        'Developed an AI-powered Python application designed to assist with interview preparation by providing relevant questions, real-time feedback, and practice sessions.',
+        'Utilized natural language processing (NLP) techniques and OpenAI API to simulate real interview scenarios, improving user communication and problem-solving skills.',
+      ],
+    },
+    'students-corner': {
+      title: 'Students Corner',
+      techStack:
+        'Tech Stack: Centralized platform (add stack if applicable, e.g., HTML, CSS, JS, backend framework)',
+      description: [
+        'Designed a centralized communication platform to improve information sharing between students and educators.',
+        'Features include discussion forums, announcements, and resource-sharing modules.',
+      ],
+      link: 'https://github.com/your-github-link-here/students-corner',
+    },
+  };
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
       <SpaceBackground />
@@ -37,13 +101,14 @@ export default function Landing() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="flex justify-center"
           >
-            <Button
-              size="lg"
-              className="bg-white text-black hover:bg-white/90"
+            <button
+              type="button"
+              aria-label="More About Me"
               onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-6 py-3 rounded-md bg-white text-black font-medium tracking-wide hover:bg-white/90 transition border border-black/10 shadow-sm z-20"
             >
               More About Me
-            </Button>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -117,148 +182,228 @@ export default function Landing() {
             </div>
 
             <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-              <CardContent className="p-6 space-y-8">
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="summary">
-                    <AccordionTrigger className="text-2xl font-semibold text-white">Professional Summary</AccordionTrigger>
-                    <AccordionContent>
+              <CardContent className="p-6">
+                <Tabs defaultValue="overview" className="w-full">
+                  <TabsList className="flex flex-wrap gap-2 bg-white/10 border border-white/10">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="experience">Experience</TabsTrigger>
+                    <TabsTrigger value="projects">Projects</TabsTrigger>
+                    <TabsTrigger value="education">Education & Certifications</TabsTrigger>
+                    <TabsTrigger value="leadership">Leadership</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="overview" className="mt-6 space-y-6">
+                    <div>
+                      <h3 className="text-2xl font-semibold mb-2">Objective</h3>
                       <p className="text-white/80 leading-relaxed">
-                        Aspiring Security Analyst with hands-on experience in incident response, alert triage, and SIEM log analysis.
-                        Skilled in threat detection, escalation, and case management workflows, with a strong foundation in network
-                        security and threat intelligence. Familiar with ServiceNow for incident tracking and process automation. Eager
-                        to contribute to enhancing organizational security posture through proactive monitoring, timely escalation,
-                        and continuous process improvement.
+                        Aspiring Security Analyst with strong foundational knowledge in network security, threat intelligence, and log
+                        analysis. Eager to contribute to proactive threat detection and risk mitigation to strengthen organizational
+                        security posture, leveraging expertise in SIEM tools, AI-driven security, and incident response workflows.
                       </p>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="skills">
-                    <AccordionTrigger className="text-2xl font-semibold text-white">Skills</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="grid md:grid-cols-2 gap-4 text-white/80">
-                        <div>
-                          <h4 className="font-semibold mb-2">SIEM & SOC</h4>
-                          <ul className="list-disc list-inside space-y-1">
-                            <li>Splunk, QRadar, Wazuh, Log Analysis, Correlation Rules</li>
-                            <li>Alert Triage, Phishing Investigation, Incident Triage & Escalation</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold mb-2">Security Domains</h4>
-                          <ul className="list-disc list-inside space-y-1">
-                            <li>Threat Intel, MITRE ATT&CK, Cyber Kill Chain</li>
-                            <li>Vulnerability Analysis, Email Security, DLP, ISO 27001</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold mb-2">Cloud & Systems</h4>
-                          <ul className="list-disc list-inside space-y-1">
-                            <li>AWS Security/Networking, Linux, Windows Event Logs, Active Directory</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold mb-2">Programming & Tools</h4>
-                          <ul className="list-disc list-inside space-y-1">
-                            <li>Python, SQL, Wireshark, VMs, Basic Pentest Tools</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="experience">
-                    <AccordionTrigger className="text-2xl font-semibold text-white">Professional Experience</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-6">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2 text-white">
-                            <h4 className="font-semibold">Cybersecurity Analyst Intern — bblewrap</h4>
-                            <span className="text-white/60">India (Remote)</span>
-                            <span className="text-white/60 inline-flex items-center gap-2">
-                              <Calendar className="w-4 h-4" /> 06/2024 – 12/2024
-                            </span>
-                          </div>
-                          <ul className="list-disc list-inside mt-2 text-white/80 space-y-1">
-                            <li>Performed SIEM log analysis and event correlation (Splunk/QRadar); increased incident detection by 15%.</li>
-                            <li>Tuned correlation rules and evaluated controls to reduce false positives by 10%.</li>
-                            <li>Identified and remediated critical vulnerabilities in Manappuram Finance MADU application.</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2 text-white">
-                            <h4 className="font-semibold">Cybersecurity Engineer — Finpro Technologies</h4>
-                            <span className="text-white/60">India (Remote)</span>
-                            <span className="text-white/60 inline-flex items-center gap-2">
-                              <Calendar className="w-4 h-4" /> 01/2025
-                            </span>
-                          </div>
-                          <ul className="list-disc list-inside mt-2 text-white/80 space-y-1">
-                            <li>Supported ISO 27001-aligned GRC initiatives: risk assessments, control mapping, policy documentation.</li>
-                            <li>Authored procedures and compliance artifacts aligning operations with best practices.</li>
-                            <li>Delivered pre-sales cybersecurity demos; mapped technical capabilities to client requirements.</li>
-                            <li>Supported incident handling workflows, ensuring timely escalation and closure aligned with SOC playbooks.</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="certs">
-                    <AccordionTrigger className="text-2xl font-semibold text-white">Certifications</AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc list-inside text-white/80 space-y-1">
-                        <li>CompTIA Security+ — CompTIA | 08/2025 (Credential ID: COMP001022645550)</li>
-                        <li>Generative AI Fundamentals — GeeksforGeeks | Course Completed</li>
-                        <li>Google Cybersecurity Professional — Coursera | 03/2024</li>
-                        <li>Ethical Hacking Associate — RedTeam | Course Completed</li>
-                        <li>Ethical Hacking Essentials — EC-Council | Course Completed</li>
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="education">
-                    <AccordionTrigger className="text-2xl font-semibold text-white">Education</AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc list-inside text-white/80 space-y-1">
-                        <li>B.Tech, Computer Science — APJAKTU - SNMIMT (First Class), 2020–2024</li>
-                        <li>Plus Two in Computer Science — MES P Vemballur High School, 2018–2020</li>
-                        <li>Class X — T.H.S Kodungallur, 2017–2018</li>
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="projects">
-                    <AccordionTrigger className="text-2xl font-semibold text-white">Projects</AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc list-inside text-white/80 space-y-2">
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-semibold mb-3">Technical Skills</h4>
+                      <ul className="list-disc list-inside space-y-1 text-white/80">
                         <li>
-                          AI Phishing Email Automation (2025): Tines, Sublime Security, VirusTotal, URLScan, GPT-4 (opt).
-                          Built a no-code workflow to ingest emails, enrich IOCs, classify, route attachment/non-attachment paths,
-                          and auto-notify SOC via Slack/Email; reduced manual triage by ~80%.
+                          SOC Operations: SOC Monitoring, Log Analysis, SIEM (Splunk, IBM QRadar, Microsoft Sentinel), Endpoint
+                          Security, Threat Detection, Incident Response, Alert Analysis, Phishing Investigation, Incident Triage,
+                          Alert Prioritization, Correlation Rule Testing, Workflow Automation (Tines, Slack)
                         </li>
                         <li>
-                          Malware Analyzer: Implemented URL/embedded content analysis with link scanning, basic signature checks,
-                          and risk scoring.
+                          Security Concepts: Threat Intelligence, Network Security, MITRE ATT&CK, Cyber Kill Chain, Security Risk
+                          Analysis, Vulnerability Analysis, DLP Tools, Email Security Analysis, Security Controls Evaluation,
+                          Compliance (ISO 27001), IP Addressing, Subnetting
                         </li>
+                        <li>
+                          AI/ML for Security: Machine Learning Models, Anomaly Detection, Phishing Detection, Suspicious Login Behavior
+                          Detection, Generative AI Fundamentals
+                        </li>
+                        <li>Operating Systems: Linux, Windows Event Logs, Active Directory</li>
+                        <li>
+                          Tools & Technologies: Packet Analysis (Wireshark), Pentest Tools (basic exposure), Virtual Machines, Wazuh,
+                          KQL, Regex
+                        </li>
+                        <li>Programming: Python (automation, scripting, Scikit-learn, Flask, Pandas), SQL, C</li>
                       </ul>
-                    </AccordionContent>
-                  </AccordionItem>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-semibold mb-3">Soft Skills</h4>
+                      <p className="text-white/80">
+                        Analytical Thinking, Problem Solving, Attention to Detail, Ticket Handling, Fast Learner, Time Management,
+                        Security Mindset, Team Collaboration
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-semibold mb-3">Languages</h4>
+                      <ul className="list-disc list-inside space-y-1 text-white/80">
+                        <li>English (Fluent)</li>
+                        <li>Malayalam (Native)</li>
+                        <li>Hindi (Conversational)</li>
+                      </ul>
+                    </div>
+                  </TabsContent>
 
-                  <AccordionItem value="additional">
-                    <AccordionTrigger className="text-2xl font-semibold text-white">Additional Experience & Learning</AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="list-disc list-inside text-white/80 space-y-1">
-                        <li>Home Lab: VMs with Splunk and Wazuh; simulated attacks/defense; Windows Event Log parsing; phishing investigation.</li>
-                        <li>TryHackMe: Cybersecurity Analyst path (SIEM, endpoint protection, phishing analysis).</li>
-                        <li>LetsDefend: SOC workflows, MITRE ATT&CK mapping, alert analysis.</li>
-                        <li>Stock Market Data Analyzer: Built a tool using APIs and custom algorithms for trend analysis and insights.</li>
-                        <li>Interview Assistant Website: AI-powered platform to generate questions, analyze answers, and provide feedback.</li>
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                  <TabsContent value="experience" className="mt-6">
+                    <h3 className="text-2xl font-semibold mb-4">Professional & Practical Experience</h3>
+                    <p className="text-white/70 mb-6">
+                      Chronological overview of internships and hands-on learning experiences.
+                    </p>
+                    <div className="space-y-8">
+                      <div className="relative pl-10">
+                        <div className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-white"></div>
+                        <div className="absolute left-0 top-2 bottom-[-2rem] w-px bg-white/20" />
+                        <h4 className="text-xl font-semibold">Cybersecurity Analyst Intern</h4>
+                        <p className="text-white/60">bblewrap | June 2024 – December 2024</p>
+                        <ul className="list-disc list-inside text-white/80 mt-2 space-y-1">
+                          <li>Identified application-level vulnerabilities in Manappuram Finance MADU app and supported remediation.</li>
+                          <li>Performed log analysis and event correlation to detect potential security incidents.</li>
+                          <li>Evaluated security controls and improved threat detection capabilities.</li>
+                        </ul>
+                      </div>
+                      <div className="relative pl-10">
+                        <div className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-white"></div>
+                        <div className="absolute left-0 top-2 bottom-[-2rem] w-px bg-white/20" />
+                        <h4 className="text-xl font-semibold">Cybersecurity Engineer</h4>
+                        <p className="text-white/60">Finpro Technologies | January 2025</p>
+                        <ul className="list-disc list-inside text-white/80 mt-2 space-y-1">
+                          <li>Supported ISO 27001-aligned GRC initiatives.</li>
+                          <li>Documented policies, risk assessments, and compliance controls.</li>
+                          <li>Assisted pre-sales demos and mapped capabilities to client needs.</li>
+                        </ul>
+                      </div>
+                      <div className="relative pl-10">
+                        <div className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-white"></div>
+                        <div className="absolute left-0 top-2 bottom-[-2rem] w-px bg-white/20" />
+                        <h4 className="text-xl font-semibold">Home Lab Setup</h4>
+                        <p className="text-white/60">Self-Initiated Learning</p>
+                        <ul className="list-disc list-inside text-white/80 mt-2 space-y-1">
+                          <li>VMs with Splunk and Wazuh; simulated attacks/defense; Windows Event Log parsing; phishing investigation.</li>
+                        </ul>
+                      </div>
+                      <div className="relative pl-10">
+                        <div className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-white"></div>
+                        <div className="absolute left-0 top-2 bottom-[-2rem] w-px bg-white/20" />
+                        <h4 className="text-xl font-semibold">TryHackMe & LetsDefend</h4>
+                        <p className="text-white/60">Online Platforms</p>
+                        <ul className="list-disc list-inside text-white/80 mt-2 space-y-1">
+                          <li>Trained on SOC workflows, SIEM concepts, endpoint protection, and phishing analysis.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="projects" className="mt-6">
+                    <h3 className="text-2xl font-semibold mb-4">Key Projects</h3>
+                    <p className="text-white/70 mb-6">
+                      Click a project to view details.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {Object.entries(projectsData).map(([key, proj]) => (
+                        <button
+                          key={key}
+                          onClick={() => {
+                            setSelectedProject(key);
+                            setProjectOpen(true);
+                          }}
+                          className="text-left bg-white/5 border border-white/10 rounded-lg p-5 hover:bg-white/10 transition focus:outline-none"
+                        >
+                          <h4 className="text-xl font-semibold text-white mb-1">{proj.title}</h4>
+                          {proj.duration && <p className="text-white/60 text-sm mb-2">{proj.duration}</p>}
+                          <p className="text-white/80 line-clamp-3">
+                            {proj.description[0]}
+                          </p>
+                          <span className="text-white/70 text-sm mt-3 inline-block">Click for more details</span>
+                        </button>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="education" className="mt-6">
+                    <h3 className="text-2xl font-semibold mb-4">Education & Certifications</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <h4 className="text-xl font-semibold mb-3">Education</h4>
+                        <ul className="list-disc list-inside space-y-2 text-white/80">
+                          <li>B.Tech in Computer Science — APJAKTU (First Class) | 2020–2024</li>
+                          <li>College: SNMIMT SNM Institute of Management and Technology</li>
+                          <li>Plus Two in Computer Science — MES P Vemballur High School | 2018–2020</li>
+                          <li>Class X — T.H.S Kodungallur | 2017–2018</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-semibold mb-3">Certifications</h4>
+                        <ul className="list-disc list-inside space-y-2 text-white/80">
+                          <li>CompTIA Security+ — CompTIA | 08/2025 (Credential ID: COMP001022645550)</li>
+                          <li>Generative AI Fundamentals — GeeksforGeeks</li>
+                          <li>Google Cybersecurity Professional — Coursera | 03/2024</li>
+                          <li>Ethical Hacking Associate — RedTeam</li>
+                          <li>Ethical Hacking Essentials — EC-Council</li>
+                          <li>Foundations of Cybersecurity — Coursera | 12/2023</li>
+                          <li>Play It Safe: Manage Security Risks — Coursera | 01/2024</li>
+                          <li>Connect and Protect: Networks & Network Security — Coursera | 01/2024</li>
+                          <li>Tools of the Trade: Linux and SQL — Coursera | 02/2024</li>
+                          <li>Assets, Threats, and Vulnerabilities — Coursera | 03/2024</li>
+                          <li>Sound the Alarm: Detection and Response — Coursera | 03/2024</li>
+                          <li>Automate Cybersecurity Tasks with Python — Coursera | 03/2024</li>
+                          <li>Put It to Work: Prepare for Cybersecurity Jobs — Coursera | 03/2024</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="leadership" className="mt-6">
+                    <h3 className="text-2xl font-semibold mb-4">Leadership & Extracurriculars</h3>
+                    <ul className="list-disc list-inside space-y-3 text-white/80">
+                      <li>ISTE Member and Student Coordinator @ SNMIMT</li>
+                      <li>Espaniac CSE Association Member and Student Coordinator @ SNMIMT</li>
+                      <li>FOSS Club Member and Student Coordinator @ SNMIMT</li>
+                      <li>Creative Head of NSS Unit 129 @ SNMIMT</li>
+                    </ul>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
+
+            {/* Project Details Dialog */}
+            <Dialog open={projectOpen} onOpenChange={setProjectOpen}>
+              <DialogContent className="bg-black text-white border border-white/10">
+                <DialogHeader>
+                  <DialogTitle>
+                    {selectedProject ? projectsData[selectedProject].title : 'Project'}
+                  </DialogTitle>
+                  {selectedProject && projectsData[selectedProject].duration && (
+                    <DialogDescription className="text-white/60">
+                      {projectsData[selectedProject].duration}
+                    </DialogDescription>
+                  )}
+                </DialogHeader>
+                {selectedProject && (
+                  <div className="space-y-4">
+                    {projectsData[selectedProject].techStack && (
+                      <p className="text-white/80">{projectsData[selectedProject].techStack}</p>
+                    )}
+                    <div className="space-y-2">
+                      {projectsData[selectedProject].description.map((d, i) => (
+                        <p key={i} className="text-white/80 leading-relaxed">
+                          {d}
+                        </p>
+                      ))}
+                    </div>
+                    {projectsData[selectedProject].link && (
+                      <a
+                        href={projectsData[selectedProject].link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-white/90 underline"
+                      >
+                        View on GitHub
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
           </motion.div>
         </div>
       </section>
