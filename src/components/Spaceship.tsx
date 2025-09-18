@@ -54,7 +54,7 @@ export default function Spaceship() {
 
     // Load GLB
     const loader = new GLTFLoader();
-    const MODEL_PATH = "/assets/compressed_1758195041497_space_shipe.glb";
+    const MODEL_PATH = "/assets/deep_space_9.glb";
     const group = new THREE.Group();
     scene.add(group);
 
