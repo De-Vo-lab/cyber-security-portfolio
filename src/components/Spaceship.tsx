@@ -18,7 +18,21 @@ export default function Spaceship() {
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 200);
     camera.position.set(0, 1.2, 8);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    // Create WebGL renderer with graceful fallback if WebGL is unavailable
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+        failIfMajorPerformanceCaveat: true,
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn("WebGL not available or context creation failed. Spaceship disabled.", err);
+      return; // Exit effect early to avoid runtime errors
+    }
+
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
