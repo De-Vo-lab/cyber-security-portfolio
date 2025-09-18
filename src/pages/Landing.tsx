@@ -486,20 +486,20 @@ export default function Landing() {
                 <Button
                   size="icon"
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="bg-transparent border-white/20 text-white hover:bg-white/10"
                   asChild
                 >
-                  <a href="https://www.linkedin.com/in/devarajan-p-m/" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.linkedin.com/in/devarajan-p-m/" target="_blank" rel="noopener noreferrer" aria-label="Open LinkedIn profile">
                     <Linkedin className="w-5 h-5" />
                   </a>
                 </Button>
                 <Button
                   size="icon"
                   variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="bg-transparent border-white/20 text-white hover:bg-white/10"
                   asChild
                 >
-                  <a href="https://www.github.com/devarajan-here" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.github.com/devarajan-here" target="_blank" rel="noopener noreferrer" aria-label="Open GitHub profile">
                     <Github className="w-5 h-5" />
                   </a>
                 </Button>
