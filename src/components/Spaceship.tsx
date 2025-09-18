@@ -15,7 +15,8 @@ export default function Spaceship() {
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x000000, 15, 60);
 
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 200);
+    // Narrower FOV for better composition and compatibility
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 200);
     camera.position.set(0, 1.2, 8);
 
     // Create WebGL renderer with graceful fallback if WebGL is unavailable
@@ -86,9 +87,36 @@ export default function Spaceship() {
             }
           }
         });
-        model.position.set(0, 0, 0);
-        model.scale.set(1.6, 1.6, 1.6);
-        group.add(model);
+
+        // Auto-fit camera to model so it doesn't fill the entire viewport
+        // and remains nicely framed across devices.
+        const box = new THREE.Box3().setFromObject(gltf.scene);
+        const sizeVec = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxSize = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
+
+        // Re-center model around origin for stable animation
+        gltf.scene.position.sub(center);
+
+        // Optional: small uniform scale if model is huge or tiny in native units
+        const targetScale = 1; // tweak if needed
+        gltf.scene.scale.setScalar(targetScale);
+
+        // Compute a camera distance that fits the model with some margin
+        const halfFovY = THREE.MathUtils.degToRad(camera.fov * 0.5);
+        const distance = (maxSize / (2 * Math.tan(halfFovY))) * 1.25; // 25% margin
+
+        // Clamp to ensure it never gets too close on small models
+        const minDistance = 8;
+        camera.position.set(0, 1.2, Math.max(distance, minDistance));
+
+        // Update clipping planes to suit model size, then apply
+        camera.near = Math.max(0.1, maxSize / 1000);
+        camera.far = Math.max(200, maxSize * 10);
+        camera.updateProjectionMatrix();
+
+        // Add to scene after fit
+        group.add(gltf.scene);
       },
       undefined,
       (err) => {
