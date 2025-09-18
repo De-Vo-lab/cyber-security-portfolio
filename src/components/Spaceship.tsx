@@ -248,48 +248,49 @@ export default function Spaceship() {
         const P0 = { x: 4, y: -0.6 };   // start (right-bottom, more centered)
         const PEND = { x: -8, y: 2.2 }; // end (top-left, less extreme)
         // Helpers
-        const smoothstep = (a: number, b: number, x: number) => {
+        // Replace simple smoothstep with quintic smootherstep for nicer easing
+        const smootherstep = (a: number, b: number, x: number) => {
           const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
-          return tt * tt * (3 - 2 * tt);
+          return tt * tt * tt * (tt * (tt * 6 - 15) + 10);
         };
         const lerp = (a: number, b: number, tt: number) => a + (b - a) * tt;
 
-        // Long pass interpolation
-        const u = smoothstep(0, 1, s);
+        // Long pass interpolation with a tiny settle at start and tighter hyper window
+        const u = smootherstep(0.05, 0.78, s);
         const px = lerp(P0.x, PEND.x, u);
         const py = lerp(P0.y, PEND.y, u);
 
-        // Gentle bobbing overlay
-        const bob = Math.sin(t * 1.2) * 0.25;
+        // Gentle bobbing overlay (slightly reduced amplitude for calmer motion)
+        const bob = Math.sin(t * 1.2) * 0.2;
 
-        // Black hole hyperjump phase near the end of the pass
-        const hyper = smoothstep(0.78, 1.0, s); // ramp up towards the end
-        const hyperDepth = 8;                   // how far into Z it dives
-        const hyperScale = 1 - hyper * 0.6;     // scale down as it jumps
+        // Hyperjump phase a bit tighter and later for a snappier exit
+        const hyper = smootherstep(0.84, 1.0, s);
+        const hyperDepth = 8;                 // how far into Z it dives
+        const hyperScale = 1 - hyper * 0.6;   // scale down as it jumps
 
         group.position.x = px;
         group.position.y = py + bob;
         group.position.z = -hyper * hyperDepth; // dive deeper into the background
 
-        // Natural banking based on horizontal velocity (more damping for smoothness)
+        // Natural banking based on horizontal velocity (increase damping for smoothness)
         const vx = px - prevPx;
         prevPx = px;
         const bankTarget = THREE.MathUtils.clamp(-vx * 1.8, -0.45, 0.45);
-        group.rotation.z += (bankTarget - group.rotation.z) * 0.06;
+        group.rotation.z += (bankTarget - group.rotation.z) * 0.08;
 
-        // Base yaw points left; softly converge so it doesn't look backward (slightly more damping)
+        // Base yaw points left; softly converge (slightly more damping)
         const baseYaw = ORIENT_YAW;
-        group.rotation.y += (baseYaw - group.rotation.y) * 0.05;
+        group.rotation.y += (baseYaw - group.rotation.y) * 0.06;
 
         // Parallax damped and reduced during hyperjump for a glide-out effect (more smoothing)
         const parallaxDampen = 1 - hyper * 0.85;
         const targetRotX = (mouse.y * 0.25) * parallaxDampen;
         const targetRotY = (mouse.x * 0.35) * parallaxDampen;
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.035;
-        group.rotation.y += (targetRotY) * 0.03;
+        group.rotation.x += (targetRotX - group.rotation.x) * 0.04;
+        group.rotation.y += (targetRotY) * 0.035;
 
-        // Subtle orbit (slightly reduced for steadier motion)
-        group.rotation.y += 0.06 * dt * (1 - hyper); // reduce orbit as it exits
+        // Subtle orbit reduced for steadier motion
+        group.rotation.y += 0.04 * dt * (1 - hyper); // reduce orbit as it exits
 
         // Scale down on exit to enhance black hole feel
         const scaled = Math.max(0.2, hyperScale);
@@ -300,18 +301,17 @@ export default function Spaceship() {
         const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
         engineLight.position.copy(glowPos);
         engineSprite.position.copy(glowPos);
-        const baseIntensity = 1.2 + Math.sin(t * 12) * 0.15;
+        const baseIntensity = 1.15 + Math.sin(t * 11) * 0.12;
         engineLight.intensity = baseIntensity * (1 - hyper * 0.85);
-        engineSprite.material.opacity = (0.75 + Math.sin(t * 10) * 0.1) * (1 - hyper * 0.9);
+        engineSprite.material.opacity = (0.72 + Math.sin(t * 9.5) * 0.1) * (1 - hyper * 0.9);
 
-        // Add: Hyperjump streaks update (lines extend and brighten during hyper)
+        // Update hyperjump streaks (unchanged structure, just uses new hyper timing)
         hyperGroup.position.copy(group.position);
         hyperGroup.rotation.copy(group.rotation);
         for (const item of hyperLines) {
           const start = new THREE.Vector3().copy(group.position).add(item.offset);
-          // Ship nose faces -X, so trail extends along +X (behind the ship)
           const length =
-            0.6 + item.rand * 0.6 + hyper * 4.0; // grow significantly with hyper
+            0.6 + item.rand * 0.6 + hyper * 4.0;
           const spreadY = (item.rand - 0.5) * 0.2 * (1 + hyper * 1.5);
           const spreadZ = (item.rand - 0.5) * 0.2 * (1 + hyper * 1.5);
           const end = new THREE.Vector3(
@@ -325,15 +325,14 @@ export default function Spaceship() {
           posAttr.setXYZ(1, end.x, end.y, end.z);
           posAttr.needsUpdate = true;
 
-          // Opacity increases with hyper for a strong warp effect
           item.mat.opacity = THREE.MathUtils.clamp(0.12 + hyper * 0.9, 0, 1);
         }
 
-        // Slight exposure bump during hyperjump for a flash effect
-        renderer.toneMappingExposure = 1.2 + hyper * 0.35;
+        // Slight exposure bump during hyperjump for a flash effect (subtly reduced)
+        renderer.toneMappingExposure = 1.2 + hyper * 0.3;
 
-        // Keep camera trained on the ship (slightly smoother tracking)
-        lookAtTarget.lerp(group.position, 0.1);
+        // Keep camera trained on the ship (a touch smoother)
+        lookAtTarget.lerp(group.position, 0.12);
         camera.lookAt(lookAtTarget);
       }
 
