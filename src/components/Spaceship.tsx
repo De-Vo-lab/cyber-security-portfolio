@@ -168,7 +168,7 @@ window.addEventListener("mousemove", onMouseMove);
 
     // Load GLB
     const loader = new GLTFLoader();
-    const MODEL_PATH = "/assets/xwing.glb";
+    const MODEL_PATH = "/assets/star_wars_x-wing.glb";
     const group = new THREE.Group();
     scene.add(group);
 
