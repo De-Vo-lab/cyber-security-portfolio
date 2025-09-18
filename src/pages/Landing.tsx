@@ -17,52 +17,41 @@ import {
 
 export default function Landing() {
   const skills = [
-    'JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'Java',
-    'HTML/CSS', 'SQL', 'Git', 'AWS', 'Docker', 'MongoDB'
+    'Splunk', 'QRadar', 'Wazuh', 'Log Analysis', 'Alert Triage',
+    'MITRE ATT&CK', 'Cyber Kill Chain', 'Threat Intel', 'Vulnerability Analysis',
+    'AWS Security/Networking', 'Linux', 'Windows Event Logs', 'Active Directory',
+    'Python', 'SQL', 'Wireshark', 'VMs', 'Basic Pentest Tools'
   ];
 
   const projects = [
     {
-      title: 'E-commerce Platform',
-      description: 'Full-stack web application with React, Node.js, and MongoDB',
-      tech: ['React', 'Node.js', 'MongoDB', 'Express'],
-      github: '#',
+      title: 'AI Phishing Email Automation',
+      description: 'No-code workflow to ingest emails, enrich IOCs, classify, route paths, and auto-notify SOC; reduced manual triage by ~80%.',
+      tech: ['Tines', 'Sublime Security', 'VirusTotal', 'URLScan', 'GPT-4 (opt)'],
+      github: 'https://github.com/devarajan-here',
       demo: '#'
     },
     {
-      title: 'Task Management App',
-      description: 'Mobile-first task management application with real-time updates',
-      tech: ['React Native', 'Firebase', 'Redux'],
-      github: '#',
-      demo: '#'
-    },
-    {
-      title: 'Data Visualization Dashboard',
-      description: 'Interactive dashboard for data analysis and visualization',
-      tech: ['D3.js', 'Python', 'Flask', 'PostgreSQL'],
-      github: '#',
+      title: 'Malware Analyzer',
+      description: 'URL/embedded content analysis with link scanning, basic signature checks, and risk scoring.',
+      tech: ['Python', 'Security Analysis', 'URL Scanning'],
+      github: 'https://github.com/devarajan-here',
       demo: '#'
     }
   ];
 
   const experiences = [
     {
-      title: 'Senior Software Developer',
-      company: 'Tech Solutions Inc.',
-      period: '2022 - Present',
-      description: 'Led development of scalable web applications serving 100k+ users. Mentored junior developers and implemented CI/CD pipelines.'
+      title: 'Cybersecurity Analyst Intern',
+      company: 'bblewrap',
+      period: '06/2024 – 12/2024',
+      description: 'Performed SIEM log analysis and event correlation (Splunk/QRadar); tuned rules to reduce false positives; identified and remediated critical vulnerabilities in MADU application.'
     },
     {
-      title: 'Full Stack Developer',
-      company: 'Digital Innovations Ltd.',
-      period: '2020 - 2022',
-      description: 'Developed and maintained multiple client projects using React, Node.js, and cloud technologies.'
-    },
-    {
-      title: 'Junior Developer',
-      company: 'StartUp Ventures',
-      period: '2019 - 2020',
-      description: 'Built responsive web applications and collaborated with design teams to implement user interfaces.'
+      title: 'Cybersecurity Engineer',
+      company: 'Finpro Technologies',
+      period: '01/2025',
+      description: 'Supported ISO 27001-aligned GRC initiatives; authored procedures and compliance artifacts; delivered pre-sales demos; supported incident workflows per SOC playbooks.'
     }
   ];
 
@@ -488,15 +477,15 @@ export default function Landing() {
               <div className="space-y-4">
                 <div className="flex items-center">
                   <Mail className="w-5 h-5 mr-3 text-white/60" />
-                  <span>john.doe@email.com</span>
+                  <span>devarajanpm79@gmail.com</span>
                 </div>
                 <div className="flex items-center">
                   <Phone className="w-5 h-5 mr-3 text-white/60" />
-                  <span>+1 (555) 123-4567</span>
+                  <span>+91 8330857529</span>
                 </div>
                 <div className="flex items-center">
                   <MapPin className="w-5 h-5 mr-3 text-white/60" />
-                  <span>San Francisco, CA</span>
+                  <span>Thrissur, Kerala, India</span>
                 </div>
               </div>
               <div className="flex gap-4 mt-8">
@@ -506,7 +495,7 @@ export default function Landing() {
                   className="border-white/20 text-white hover:bg-white/10"
                   asChild
                 >
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.linkedin.com/in/devarajan-p-m/" target="_blank" rel="noopener noreferrer">
                     <Linkedin className="w-5 h-5" />
                   </a>
                 </Button>
@@ -516,7 +505,7 @@ export default function Landing() {
                   className="border-white/20 text-white hover:bg-white/10"
                   asChild
                 >
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.github.com/devarajan-here" target="_blank" rel="noopener noreferrer">
                     <Github className="w-5 h-5" />
                   </a>
                 </Button>
@@ -537,7 +526,7 @@ export default function Landing() {
       <footer className="py-8 relative z-10 border-t border-white/10">
         <div className="container mx-auto px-4 text-center">
           <p className="text-white/60">
-            © 2024 John Doe. All rights reserved.
+            © 2024 Devarajan P M. All rights reserved.
           </p>
         </div>
       </footer>
