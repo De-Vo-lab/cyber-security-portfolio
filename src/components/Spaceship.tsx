@@ -34,6 +34,9 @@ export default function Spaceship() {
       return; // Exit effect early to avoid runtime errors
     }
 
+    // Improve visual smoothness/perception with better tone mapping
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -153,6 +156,9 @@ export default function Spaceship() {
     // Add a smoothed look-at target for the camera to follow the ship
     const lookAtTarget = new THREE.Vector3(0, 0, 0);
 
+    // Track previous X to compute horizontal velocity for banking
+    let lastPosX = 0;
+
     let t = 0;
     const clock = new THREE.Clock();
     const animate = () => {
@@ -204,18 +210,27 @@ export default function Spaceship() {
         // gentle bobbing overlay
         const bob = Math.sin(t * 1.2) * 0.25;
 
+        // Compute banking from horizontal velocity before applying position
+        const vx = px - lastPosX;
+        // target bank angle (lean into turns)
+        const bankTarget = THREE.MathUtils.clamp(-vx * 0.25, -0.6, 0.6);
+
         // APPLY OFFSET so the entire path is shifted up/left
         group.position.set(px + X_OFFSET, py + Y_OFFSET + bob, pz);
+
+        // Natural banking with damping
+        group.rotation.z += (bankTarget - group.rotation.z) * Math.min(1, 8 * dt);
 
         // subtle orbit + mouse parallax
         group.rotation.y += 0.1 * dt; // base orbit
         const targetRotX = mouse.y * 0.25;
         const targetRotY = mouse.x * 0.35;
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
-        group.rotation.y += (targetRotY - group.rotation.y) * 0.04;
+        // slightly stronger damping for smoother feel
+        group.rotation.x += (targetRotX - group.rotation.x) * Math.min(1, 5 * dt);
+        group.rotation.y += (targetRotY - group.rotation.y) * Math.min(1, 4 * dt);
 
-        // keep camera trained on the ship
-        lookAtTarget.lerp(group.position, 0.08);
+        // keep camera trained on the ship, a touch snappier for smooth tracking
+        lookAtTarget.lerp(group.position, Math.min(1, 6 * dt));
         camera.lookAt(lookAtTarget);
 
         // ADD: smooth exit fade-out and entrance fade-in to avoid visible "pop"
