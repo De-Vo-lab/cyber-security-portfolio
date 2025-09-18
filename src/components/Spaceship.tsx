@@ -43,6 +43,37 @@ export default function Spaceship() {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     mount.appendChild(renderer.domElement);
 
+    // Add: global right-side world anchor + projector to align ship to true page center
+    let anchorX = 3.2;
+    const computeWorldXAtScreenRatio = () => {
+      if (!mount) return;
+
+      // Pick a point ~32% from the left edge of the ship canvas (keeps ship right-aligned)
+      const rect = mount.getBoundingClientRect();
+      const screenX = rect.left + rect.width * 0.32;
+      const screenY = rect.top + rect.height * 0.5;
+
+      // Convert screen pos -> NDC
+      const ndc = new THREE.Vector3(
+        (screenX / window.innerWidth) * 2 - 1,
+        -(screenY / window.innerHeight) * 2 + 1,
+        0.5
+      );
+
+      // Unproject and intersect with z=0 plane
+      ndc.unproject(camera);
+      const origin = camera.position.clone();
+      const dir = ndc.sub(origin).normalize();
+      const EPS = 1e-6;
+      if (Math.abs(dir.z) < EPS) return;
+
+      const tHit = (0 - origin.z) / dir.z;
+      const hit = origin.add(dir.multiplyScalar(tHit));
+      if (Number.isFinite(hit.x)) {
+        anchorX = hit.x;
+      }
+    };
+
     // Lights (increase brightness and add subtle ambient)
     const hemi = new THREE.HemisphereLight(0xffffff, 0x222233, 0.9);
     scene.add(hemi);
@@ -198,44 +229,40 @@ export default function Spaceship() {
         // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
         group.rotation.y = ORIENT_YAW;
 
-        // Compute a stable right-side anchor in world space (z = 0 plane)
-        // based on the canvas' fixed position on the right side of the page.
-        let anchorX = 3.2; // fallback default
+        // Persistent right-side world-space anchor (z=0 plane).
+        // Keeps the ship aligned with the true page center vs the fixed-right canvas.
+        let anchorX = 3.2;
         const computeWorldXAtScreenRatio = () => {
           if (!mount) return;
 
-          // Position the ship around ~left third of the right-side canvas,
-          // which visually keeps it on the right of the page without covering the hero text.
+          // Choose a point ~one-third into the spaceship canvas from its left edge
+          // to keep the ship visually right-aligned without overlapping the hero text.
           const rect = mount.getBoundingClientRect();
-          const screenX = rect.left + rect.width * 0.32; // tweakable anchor inside the canvas
+          const screenX = rect.left + rect.width * 0.32;
           const screenY = rect.top + rect.height * 0.5;
 
-          // Convert screen -> NDC
+          // Screen -> NDC
           const ndc = new THREE.Vector3(
             (screenX / window.innerWidth) * 2 - 1,
             -(screenY / window.innerHeight) * 2 + 1,
             0.5
           );
 
-          // Unproject to world and intersect with z=0 plane
+          // Unproject to world, intersect with z=0 plane
           ndc.unproject(camera);
           const origin = camera.position.clone();
           const dir = ndc.sub(origin).normalize();
           const EPS = 1e-6;
+          if (Math.abs(dir.z) < EPS) return;
 
-          if (Math.abs(dir.z) < EPS) {
-            // Ray nearly parallel to z=0 plane; keep previous value
-            return;
-          }
-
-          const t = (0 - origin.z) / dir.z; // hit z=0 plane
+          const t = (0 - origin.z) / dir.z;
           const hit = origin.add(dir.multiplyScalar(t));
           if (Number.isFinite(hit.x)) {
             anchorX = hit.x;
           }
         };
 
-        // Initial compute (in case model load fails or before it completes)
+        // Initial anchor compute
         computeWorldXAtScreenRatio();
 
         // Recompute right-side anchor now that the camera framing is finalized
@@ -286,6 +313,9 @@ export default function Spaceship() {
     const animate = () => {
       const dt = clock.getDelta();
       t += dt;
+
+      // Keep anchor synced with current camera/layout every frame
+      computeWorldXAtScreenRatio();
 
       if (group) {
         // Fixed anchor on the right side; no sweeping/path progression
