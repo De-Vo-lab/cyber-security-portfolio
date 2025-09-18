@@ -12,6 +12,8 @@ export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submitMessage = useMutation(api.messages.submit);
 
+  const CONTACT_EMAIL = 'devarajanpm79@gmail.com';
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -25,8 +27,16 @@ export default function ContactForm() {
 
       await submitMessage({ name, email, message });
 
-      toast.success('Message sent successfully!', {
-        description: "Thank you for reaching out. I'll get back to you soon.",
+      // Open default email client with prefilled subject and body
+      const subject = encodeURIComponent(`New Portfolio Message from ${name}`);
+      const body = encodeURIComponent(
+        `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+      );
+      const mailto = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+      window.location.href = mailto;
+
+      toast.success('Message saved & email composer opened!', {
+        description: "Your default mail app should appear with the draft ready to send.",
       });
 
       form.reset();
