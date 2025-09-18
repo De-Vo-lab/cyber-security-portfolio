@@ -170,6 +170,10 @@ export default function Spaceship() {
         const PC = { x: 0, y: 0.2 };     // pass through center
         const PEND = { x: -12, y: 2 };   // far top-left
 
+        // NEW: global offset to shift the full path left/up a bit
+        const X_OFFSET = -2.5;
+        const Y_OFFSET = 0.6;
+
         // helpers
         const smoothstep = (a: number, b: number, x: number) => {
           const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
@@ -191,7 +195,6 @@ export default function Spaceship() {
           py = lerp(PC.y, PEND.y, u);
           // accelerate deeper to feel like getting pulled into a black hole
           pz = lerp(-1.2, -6, u);
-          // ADD: push even deeper in the last 10% for the "black hole" feel
           if (s >= 0.9) {
             const deepU = (s - 0.9) / 0.1; // 0..1
             pz = lerp(pz, -12, deepU);
@@ -201,7 +204,8 @@ export default function Spaceship() {
         // gentle bobbing overlay
         const bob = Math.sin(t * 1.2) * 0.25;
 
-        group.position.set(px, py + bob, pz);
+        // APPLY OFFSET so the entire path is shifted up/left
+        group.position.set(px + X_OFFSET, py + Y_OFFSET + bob, pz);
 
         // subtle orbit + mouse parallax
         group.rotation.y += 0.1 * dt; // base orbit
