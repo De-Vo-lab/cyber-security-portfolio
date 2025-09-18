@@ -155,31 +155,42 @@ export default function Spaceship() {
 
       // Float animation
       if (group) {
-        // Single pass: right-bottom -> across center -> far top-left (off-screen), then loop
-        const speed = 0.14; // slight speed bump for a satisfying pass
-        const s = (t * speed) % 1; // 0..1 per pass
+        // Entry -> Center -> Exit-beyond (off-screen) then repeat
+        const speed = 0.14;
+        const s = (t * speed) % 1; // 0..1 per full pass
 
-        // Keypoints: start on screen, end beyond the view so it "exits" space
-        const P0 = { x: 6, y: -1 };    // start (right-bottom)
-        const PEND = { x: -10, y: 3 }; // end (far top-left, off-screen)
+        // Key points
+        const P0 = { x: 6, y: -1 };      // start at right-bottom
+        const PC = { x: 0, y: 0.2 };     // pass through center (slightly above)
+        const PEND = { x: -12, y: 2 };   // far top-left off-screen "beyond space"
 
         // helpers
         const smoothstep = (a: number, b: number, x: number) => {
-          const t2 = Math.max(0, Math.min(1, (x - a) / (b - a)));
-          return t2 * t2 * (3 - 2 * t2);
+          const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
+          return tt * tt * (3 - 2 * tt);
         };
-        const lerp = (a: number, b: number, tL: number) => a + (b - a) * tL;
+        const lerp = (a: number, b: number, tt: number) => a + (b - a) * tt;
 
-        // smooth interpolation along the long pass
-        const u = smoothstep(0, 1, s);
-        const px = lerp(P0.x, PEND.x, u);
-        const py = lerp(P0.y, PEND.y, u);
+        // piecewise interpolation: 0..0.6 to center, 0.6..1.0 beyond
+        let px = 0, py = 0, pz = 0;
+        if (s < 0.6) {
+          const u = smoothstep(0, 1, s / 0.6);
+          px = lerp(P0.x, PC.x, u);
+          py = lerp(P0.y, PC.y, u);
+          // slight depth pull as it nears the center
+          pz = lerp(0, -1.2, u);
+        } else {
+          const u = smoothstep(0, 1, (s - 0.6) / 0.4);
+          px = lerp(PC.x, PEND.x, u);
+          py = lerp(PC.y, PEND.y, u);
+          // accelerate deeper to feel like getting pulled into a black hole
+          pz = lerp(-1.2, -6, u);
+        }
 
         // gentle bobbing overlay
         const bob = Math.sin(t * 1.2) * 0.25;
 
-        group.position.x = px;
-        group.position.y = py + bob;
+        group.position.set(px, py + bob, pz);
 
         // subtle orbit + mouse parallax
         group.rotation.y += 0.1 * dt; // base orbit
