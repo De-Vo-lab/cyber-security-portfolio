@@ -94,6 +94,52 @@ export default function Spaceship() {
     engineSprite.scale.set(0.35, 0.35, 0.35);
     scene.add(engineSprite);
 
+    // Add: Hyperjump streaks group (line segments that grow and brighten during hyperjump)
+    const hyperGroup = new THREE.Group();
+    scene.add(hyperGroup);
+    const hyperLines: Array<{
+      line: THREE.Line;
+      geom: THREE.BufferGeometry;
+      mat: THREE.LineBasicMaterial;
+      offset: THREE.Vector3;
+      rand: number;
+    }> = [];
+    {
+      const HYPER_LINE_COUNT = 22;
+      for (let i = 0; i < HYPER_LINE_COUNT; i++) {
+        // two-point line segment
+        const geom = new THREE.BufferGeometry();
+        const positions = new Float32Array(2 * 3);
+        geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+        const mat = new THREE.LineBasicMaterial({
+          color: 0x88ccff,
+          transparent: true,
+          opacity: 0.0, // animated
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        });
+
+        const line = new THREE.Line(geom, mat);
+        hyperGroup.add(line);
+
+        // Slight random spread around engine offset
+        const offset = new THREE.Vector3(
+          0.6 + (Math.random() - 0.5) * 0.2, // start a bit behind the ship (positive x since nose points -x)
+          -0.05 + (Math.random() - 0.5) * 0.2,
+          -0.15 + (Math.random() - 0.5) * 0.2
+        );
+
+        hyperLines.push({
+          line,
+          geom,
+          mat,
+          offset,
+          rand: Math.random(),
+        });
+      }
+    }
+
     let model: THREE.Object3D | null = null;
     loader.load(
       MODEL_PATH,
@@ -258,6 +304,34 @@ export default function Spaceship() {
         engineLight.intensity = baseIntensity * (1 - hyper * 0.85);
         engineSprite.material.opacity = (0.75 + Math.sin(t * 10) * 0.1) * (1 - hyper * 0.9);
 
+        // Add: Hyperjump streaks update (lines extend and brighten during hyper)
+        hyperGroup.position.copy(group.position);
+        hyperGroup.rotation.copy(group.rotation);
+        for (const item of hyperLines) {
+          const start = new THREE.Vector3().copy(group.position).add(item.offset);
+          // Ship nose faces -X, so trail extends along +X (behind the ship)
+          const length =
+            0.6 + item.rand * 0.6 + hyper * 4.0; // grow significantly with hyper
+          const spreadY = (item.rand - 0.5) * 0.2 * (1 + hyper * 1.5);
+          const spreadZ = (item.rand - 0.5) * 0.2 * (1 + hyper * 1.5);
+          const end = new THREE.Vector3(
+            start.x + length,
+            start.y + spreadY,
+            start.z + spreadZ
+          );
+
+          const posAttr = item.geom.getAttribute("position") as THREE.BufferAttribute;
+          posAttr.setXYZ(0, start.x, start.y, start.z);
+          posAttr.setXYZ(1, end.x, end.y, end.z);
+          posAttr.needsUpdate = true;
+
+          // Opacity increases with hyper for a strong warp effect
+          item.mat.opacity = THREE.MathUtils.clamp(0.12 + hyper * 0.9, 0, 1);
+        }
+
+        // Slight exposure bump during hyperjump for a flash effect
+        renderer.toneMappingExposure = 1.2 + hyper * 0.35;
+
         // Keep camera trained on the ship (slightly smoother tracking)
         lookAtTarget.lerp(group.position, 0.1);
         camera.lookAt(lookAtTarget);
@@ -279,6 +353,12 @@ export default function Spaceship() {
       renderer.dispose();
       starsGeo.dispose();
       engineSpriteMat.dispose();
+      // Add: dispose hyperjump resources
+      for (const item of hyperLines) {
+        item.geom.dispose();
+        item.mat.dispose();
+      }
+      scene.remove(hyperGroup);
     };
   }, []);
 
