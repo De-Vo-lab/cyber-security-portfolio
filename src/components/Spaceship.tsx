@@ -244,22 +244,24 @@ export default function Spaceship() {
         const speed = 0.25; // faster pass
         const s = (t * speed) % 1; // 0..1 per pass
 
-        // Keypoints: start bottom-right -> pass through center -> vanish at center
+        // Keypoints: start bottom-right -> pass through true page center (adjusted left within right-aligned canvas) -> vanish
         const P0 = { x: 5.2, y: -1.0 };  // start at bottom-right
-        const PC = { x: 0.0, y: 0.15 };  // center pass/settle target (slightly above exact center for composition)
+        // Shift the "center" target left so it aligns with the page's 50vw (canvas sits on right 55vw)
+        const CENTER_OFFSET_X = -2.4; // tune between -2.0 and -3.0 if you want finer alignment across devices
+        const PC = { x: CENTER_OFFSET_X, y: 0.15 };  // adjusted center target
+
         // Helpers
-        // Replace simple smoothstep with quintic smootherstep for nicer easing
         const smootherstep = (a: number, b: number, x: number) => {
           const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
           return tt * tt * tt * (tt * (tt * 6 - 15) + 10);
         };
         const lerp = (a: number, b: number, tt: number) => a + (b - a) * tt;
 
-        // Phase 1: move from bottom-right to center (gentle start)
+        // Phase 1: move from bottom-right to adjusted center (gentle start)
         const u = smootherstep(0.05, 0.6, s);
         let px = lerp(P0.x, PC.x, u);
         let py = lerp(P0.y, PC.y, u);
-        // Phase 2: settle smoothly at center before hyperjump
+        // Phase 2: settle smoothly at adjusted center before hyperjump
         const settle = smootherstep(0.6, 0.8, s);
         px = lerp(px, PC.x, settle);
         py = lerp(py, PC.y, settle);
