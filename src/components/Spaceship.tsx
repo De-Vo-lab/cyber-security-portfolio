@@ -171,27 +171,34 @@ export default function Spaceship() {
     // Load GLB
     const loader = new GLTFLoader();
     const MODEL_PATH = "/assets/star_wars_x-wing.glb";
-    const group = new THREE.Group();
-    scene.add(group);
+const group = new THREE.Group();
+scene.add(group);
 
-    // ADD: cache materials for per-frame fade
-    const materials: Array<THREE.Material> = [];
+// Graceful: timeout disable if model doesn't load in time
+const LOAD_TIMEOUT_MS = 8000;
+const loadTimeoutId = window.setTimeout(() => {
+  if (failedRef.current) return;
+  if (group.children.length === 0) {
+    // eslint-disable-next-line no-console
+    console.warn("Spaceship model load timed out. Disabling spaceship to keep UI smooth.");
+    failedRef.current = true;
+    try { cancelAnimationFrame(raf); } catch {}
+    try {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("mousemove", onMouseMove);
+    } catch {}
+    try {
+      if (renderer.domElement && renderer.domElement.parentElement) {
+        renderer.domElement.parentElement.removeChild(renderer.domElement);
+      }
+    } catch {}
+    try { renderer.dispose(); } catch {}
+    try { starsGeo.dispose(); } catch {}
+  }
+}, LOAD_TIMEOUT_MS);
 
-    // ADD: Load timeout to gracefully fail if model stalls
-    let loadTimeoutId: number | null = window.setTimeout(() => {
-      if (failedRef.current) return;
-      failedRef.current = true;
-      try { if (typeof raf !== "undefined" && raf) cancelAnimationFrame(raf); } catch {}
-      try { window.removeEventListener("resize", onResize); } catch {}
-      try { window.removeEventListener("mousemove", onMouseMove); } catch {}
-      try {
-        if (renderer.domElement && renderer.domElement.parentElement) {
-          renderer.domElement.parentElement.removeChild(renderer.domElement);
-        }
-      } catch {}
-      try { renderer.dispose(); } catch {}
-      try { starsGeo.dispose(); } catch {}
-    }, 15000);
+// ADD: cache materials for per-frame fade
+const materials: Array<THREE.Material> = [];
 
     let model: THREE.Object3D | null = null;
     loader.load(
@@ -243,10 +250,7 @@ export default function Spaceship() {
         group.add(gltf.scene);
 
         // Model loaded, clear timeout
-        if (loadTimeoutId !== null) {
-          window.clearTimeout(loadTimeoutId);
-          loadTimeoutId = null;
-        }
+        window.clearTimeout(loadTimeoutId);
       },
       undefined,
       (err) => {
@@ -272,10 +276,7 @@ export default function Spaceship() {
         try {
           starsGeo.dispose();
         } catch {}
-        if (loadTimeoutId !== null) {
-          window.clearTimeout(loadTimeoutId);
-          loadTimeoutId = null;
-        }
+        window.clearTimeout(loadTimeoutId);
       }
     );
 
@@ -401,10 +402,7 @@ export default function Spaceship() {
     let raf = requestAnimationFrame(animate);
 
     return () => {
-      if (loadTimeoutId !== null) {
-        window.clearTimeout(loadTimeoutId); // clear load timeout on unmount
-        loadTimeoutId = null;
-      }
+      window.clearTimeout(loadTimeoutId); // clear load timeout on unmount
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("mousemove", onMouseMove);
