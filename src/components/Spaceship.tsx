@@ -171,7 +171,7 @@ export default function Spaceship() {
         const PEND = { x: -12, y: 2 };   // far top-left
 
         // NEW: global offset to shift the full path left/up a bit
-        const X_OFFSET = -2.5;
+        const X_OFFSET = -5.5;
         const Y_OFFSET = 0.6;
 
         // helpers
@@ -265,11 +265,11 @@ export default function Spaceship() {
   return (
     <div
       ref={mountRef}
-      className="pointer-events-none fixed inset-y-0 right-0 z-10"
+      className="pointer-events-none fixed inset-0 z-10"
       style={{
-        width: "55vw",
+        width: "100vw",
         minWidth: 320,
-        maxWidth: "900px",
+        maxWidth: "100vw",
       }}
       aria-hidden="true"
     />
