@@ -103,8 +103,7 @@ export default function Spaceship() {
           if (obj.isMesh) {
             obj.castShadow = false;
             obj.receiveShadow = false;
-            // Preserve original materials & textures from the GLB instead of replacing them.
-            // Also avoid unintended transparency which can wash out colors.
+            // Preserve original materials and avoid unintended transparency
             const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
             for (const m of mats) {
               if (m && typeof m === "object" && "transparent" in m) {
@@ -149,6 +148,9 @@ export default function Spaceship() {
 
         // Add to scene after fit
         group.add(gltf.scene);
+
+        // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
+        group.rotation.y = ORIENT_YAW;
       },
       undefined,
       (err) => {
@@ -156,6 +158,9 @@ export default function Spaceship() {
         console.error("Failed to load spaceship model:", err);
       }
     );
+
+    // Orientation constants: align the ship's "nose" to face left (-X)
+    const ORIENT_YAW = -Math.PI / 2; // base yaw so forward points left
 
     // Mouse parallax
     const mouse = new THREE.Vector2(0, 0);
@@ -188,31 +193,36 @@ export default function Spaceship() {
 
       // Float animation
       if (group) {
-        // Single pass: right-bottom -> across center -> far top-left (off-screen), then loop
-        const speed = 0.14; // slight speed bump for a satisfying pass
+        // Right-bottom -> across -> far top-left with hyperjump exit
+        const speed = 0.25; // faster pass
         const s = (t * speed) % 1; // 0..1 per pass
 
-        // Keypoints: start on screen, end beyond the view so it "exits" space
-        const P0 = { x: 6, y: -1 };    // start (right-bottom)
+        // Keypoints and offsets
+        const P0 = { x: 6, y: -1 };    // start (right-bottom, on-screen)
         const PEND = { x: -10, y: 3 }; // end (far top-left, off-screen)
-
-        // helpers
+        // Helpers
         const smoothstep = (a: number, b: number, x: number) => {
-          const t2 = Math.max(0, Math.min(1, (x - a) / (b - a)));
-          return t2 * t2 * (3 - 2 * t2);
+          const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
+          return tt * tt * (3 - 2 * tt);
         };
-        const lerp = (a: number, b: number, tL: number) => a + (b - a) * tL;
+        const lerp = (a: number, b: number, tt: number) => a + (b - a) * tt;
 
-        // smooth interpolation along the long pass
+        // Long pass interpolation
         const u = smoothstep(0, 1, s);
         const px = lerp(P0.x, PEND.x, u);
         const py = lerp(P0.y, PEND.y, u);
 
-        // gentle bobbing overlay
+        // Gentle bobbing overlay
         const bob = Math.sin(t * 1.2) * 0.25;
+
+        // Black hole hyperjump phase near the end of the pass
+        const hyper = smoothstep(0.78, 1.0, s); // ramp up towards the end
+        const hyperDepth = 8;                   // how far into Z it dives
+        const hyperScale = 1 - hyper * 0.6;     // scale down as it jumps
 
         group.position.x = px;
         group.position.y = py + bob;
+        group.position.z = -hyper * hyperDepth; // dive deeper into the background
 
         // Natural banking based on horizontal velocity
         const vx = px - prevPx;
@@ -220,23 +230,35 @@ export default function Spaceship() {
         const bankTarget = THREE.MathUtils.clamp(-vx * 1.8, -0.45, 0.45);
         group.rotation.z += (bankTarget - group.rotation.z) * 0.08;
 
-        // subtle orbit + mouse parallax
-        group.rotation.y += 0.08 * dt; // base orbit
-        const targetRotX = mouse.y * 0.25;
-        const targetRotY = mouse.x * 0.35;
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
-        group.rotation.y += (targetRotY - group.rotation.y) * 0.04;
+        // Base yaw points left; softly converge so it doesn't look backward
+        const baseYaw = ORIENT_YAW;
+        group.rotation.y += (baseYaw - group.rotation.y) * 0.06;
 
-        // Engine glow follows slightly behind with shimmer
-        const glowOffset = new THREE.Vector3(0.6, -0.05, -0.15); // trail behind and down a touch
+        // Parallax damped and reduced during hyperjump for a glide-out effect
+        const parallaxDampen = 1 - hyper * 0.85;
+        const targetRotX = (mouse.y * 0.25) * parallaxDampen;
+        const targetRotY = (mouse.x * 0.35) * parallaxDampen;
+        group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
+        group.rotation.y += (targetRotY) * 0.04;
+
+        // Subtle orbit
+        group.rotation.y += 0.08 * dt * (1 - hyper); // reduce orbit as it exits
+
+        // Scale down on exit to enhance black hole feel
+        const scaled = Math.max(0.2, hyperScale);
+        group.scale.setScalar(scaled);
+
+        // Engine glow follows and pulses; fade during hyperjump
+        const glowOffset = new THREE.Vector3(0.6, -0.05, -0.15);
         const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
         engineLight.position.copy(glowPos);
         engineSprite.position.copy(glowPos);
-        engineLight.intensity = 1.2 + Math.sin(t * 12) * 0.15;
-        engineSprite.material.opacity = 0.75 + Math.sin(t * 10) * 0.1;
+        const baseIntensity = 1.2 + Math.sin(t * 12) * 0.15;
+        engineLight.intensity = baseIntensity * (1 - hyper * 0.85);
+        engineSprite.material.opacity = (0.75 + Math.sin(t * 10) * 0.1) * (1 - hyper * 0.9);
 
-        // keep camera trained on the ship
-        lookAtTarget.lerp(group.position, 0.08);
+        // Keep camera trained on the ship
+        lookAtTarget.lerp(group.position, 0.12); // slightly snappier to keep it visible
         camera.lookAt(lookAtTarget);
       }
 
