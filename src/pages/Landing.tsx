@@ -122,9 +122,11 @@ export default function Landing() {
           >
             <div className="text-center">
               <h2 className="text-4xl font-bold mb-2">About Me</h2>
-              <p className="text-lg text-white/80 leading-relaxed">
-                Devarajan P M — Security Analyst / Cybersecurity Professional — India, Kerala, Thrissur
-              </p>
+              <div className="mt-1 space-y-1">
+                <p className="text-2xl font-semibold tracking-tight">Devarajan P M</p>
+                <p className="text-white/80">Security Analyst / Cybersecurity Professional</p>
+                <p className="text-white/60">Thrissur, Kerala, India</p>
+              </div>
               <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-white/80">
                 <a href="tel:+918330857529" className="inline-flex items-center gap-2 hover:text-white transition">
                   <Phone className="w-4 h-4" /> +91 8330857529
