@@ -125,6 +125,28 @@ export default function Spaceship() {
     // Camera breathing base Z
     let baseCameraZ = camera.position.z;
 
+    // Entry animation easing (ship slides in from the right on mount)
+    const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
+    const ENTRY_DURATION_MS = 1800;
+    const entryStart = performance.now();
+
+    // Exit animation progress (based on scroll past hero)
+    let exitProgress = 0; // 0..1
+    const onScroll = () => {
+      const vh = window.innerHeight || 1;
+      // Start exiting after ~60% of first viewport height
+      const startAt = vh * 0.6;
+      const dist = Math.max(0, window.scrollY - startAt);
+      const span = vh * 0.8; // how much scroll to fully exit
+      exitProgress = Math.min(1, dist / span);
+
+      // Fade the whole canvas in sync with exit
+      if (renderer?.domElement) {
+        renderer.domElement.style.opacity = String(1 - exitProgress);
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     // Load model (with timeout)
     const loader = new GLTFLoader();
     const MODEL_PATH = "/assets/racing_ship (1).glb";
@@ -215,13 +237,22 @@ export default function Spaceship() {
       const dt = clock.getDelta();
       const t = clock.getElapsedTime();
 
+      // Compute entry easing offset (slides from +6 -> 0)
+      const now = performance.now();
+      const entryT = Math.min(1, Math.max(0, (now - entryStart) / ENTRY_DURATION_MS));
+      const entryEase = easeOutCubic(entryT);
+      const entryOffsetX = (1 - entryEase) * 6; // starts far right, eases to 0
+
+      // Exit offset pushes ship further right as user scrolls down
+      const exitOffsetX = exitProgress * 4;
+
       if (group && model) {
         // Gentle idle motion
         const bob = Math.sin(t * 0.6 * ANIM_SPEED) * 0.1; // vertical bob
         const sway = Math.sin(t * 0.5 * ANIM_SPEED) * 0.25; // subtle horizontal sway
 
-        // Position
-        group.position.x = anchorX + sway;
+        // Position with entry + exit offsets
+        group.position.x = anchorX + sway + entryOffsetX + exitOffsetX;
         group.position.y = baseY + bob;
         group.position.z = 0;
 
@@ -265,6 +296,7 @@ export default function Spaceship() {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("scroll", onScroll);
       try {
         mount.removeChild(renderer.domElement);
       } catch {}
