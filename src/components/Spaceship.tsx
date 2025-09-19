@@ -292,8 +292,11 @@ export default function Spaceship() {
         // Gentle bobbing - slow it down and reduce amplitude
         const bob = Math.sin(t * 0.6) * 0.1;
 
-        // Apply anchored position
-        const px = P0.x;
+        // NEW: subtle horizontal sway around the anchor to make motion more visible
+        const sway = Math.sin(t * 0.5) * 0.25;
+
+        // Apply anchored position + sway
+        const px = P0.x + sway; // was: const px = P0.x;
         const py = P0.y;
         group.position.x = px;
         group.position.y = py + bob;
