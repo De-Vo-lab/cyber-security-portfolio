@@ -26,7 +26,7 @@ export default function Spaceship() {
         antialias: true,
         alpha: true,
         powerPreference: "high-performance",
-        failIfMajorPerformanceCaveat: true,
+        // Removed failIfMajorPerformanceCaveat to allow WebGL on more devices
       });
     } catch (err) {
       // eslint-disable-next-line no-console
