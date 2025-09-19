@@ -282,15 +282,15 @@ export default function Spaceship() {
       const dt = clock.getDelta();
       t += dt;
 
-      // Keep anchor synced with current camera/layout every frame
-      computeWorldXAtScreenRatio();
+      // REMOVE per-frame anchor recompute to eliminate micro drift
+      // computeWorldXAtScreenRatio();
 
       if (group) {
         // Fixed anchor on the right side; no sweeping/path progression
         const P0 = { x: anchorX, y: 0.2 };
 
-        // Gentle bobbing
-        const bob = Math.sin(t * 1.2) * 0.2;
+        // Gentle bobbing - slow it down and reduce amplitude
+        const bob = Math.sin(t * 0.6) * 0.1;
 
         // Apply anchored position
         const px = P0.x;
@@ -299,37 +299,37 @@ export default function Spaceship() {
         group.position.y = py + bob;
         group.position.z = 0;
 
-        // Subtle banking (mouse-influenced) with damping
+        // Subtle banking with softer mouse influence and damping
         const vx = px - prevPx;
         prevPx = px;
-        const mouseBank = THREE.MathUtils.clamp(-mouse.x * 0.2, -0.3, 0.3);
-        const bankTarget = THREE.MathUtils.clamp(-vx * 1.8 + mouseBank, -0.45, 0.45);
-        group.rotation.z += (bankTarget - group.rotation.z) * 0.08;
+        const mouseBank = THREE.MathUtils.clamp(-mouse.x * 0.1, -0.2, 0.2);
+        const bankTarget = THREE.MathUtils.clamp(-vx * 1.2 + mouseBank, -0.3, 0.3);
+        group.rotation.z += (bankTarget - group.rotation.z) * 0.05;
 
-        // Base yaw points left; softly converge
+        // Base yaw points left; converge more gently
         const baseYaw = ORIENT_YAW;
-        group.rotation.y += (baseYaw - group.rotation.y) * 0.06;
+        group.rotation.y += (baseYaw - group.rotation.y) * 0.03;
 
-        // Parallax (no hyper dampening)
-        const targetRotX = mouse.y * 0.25;
-        const targetRotY = mouse.x * 0.35;
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.04;
-        group.rotation.y += targetRotY * 0.035;
+        // Softer parallax
+        const targetRotX = mouse.y * 0.1;
+        const targetRotY = mouse.x * 0.15;
+        group.rotation.x += (targetRotX - group.rotation.x) * 0.02;
+        group.rotation.y += targetRotY * 0.02;
 
-        // Very subtle drift
-        group.rotation.y += 0.04 * dt;
+        // Reduce passive drift
+        group.rotation.y += 0.01 * dt;
 
-        // Constant scale (no vanish)
+        // Constant scale
         group.scale.setScalar(BASE_SCALE);
 
-        // Engine glow follows and pulses; no fade out
+        // Engine glow follows and pulses; keep subtle
         const glowOffset = new THREE.Vector3(0.6, -0.05, -0.15);
         const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
         engineLight.position.copy(glowPos);
         engineSprite.position.copy(glowPos);
-        const baseIntensity = 1.15 + Math.sin(t * 11) * 0.12;
+        const baseIntensity = 1.1 + Math.sin(t * 8) * 0.08;
         engineLight.intensity = baseIntensity;
-        engineSprite.material.opacity = 0.72 + Math.sin(t * 9.5) * 0.1;
+        engineSprite.material.opacity = 0.68 + Math.sin(t * 7.5) * 0.08;
 
         // Keep hyperjump visuals disabled and exposure constant
         hyperGroup.visible = false;
