@@ -76,7 +76,11 @@ export default function Spaceship() {
 
     // Load GLB
     const loader = new GLTFLoader();
+<<<<<<< HEAD
     const MODEL_PATH = "/assets/racing_ship.glb";
+=======
+    const MODEL_PATH = "/assets/racing_ship (1).glb";
+>>>>>>> 6e407e4 (Your descriptive commit message here)
     const group = new THREE.Group();
     scene.add(group);
 
@@ -103,6 +107,7 @@ export default function Spaceship() {
           if (obj.isMesh) {
             obj.castShadow = false;
             obj.receiveShadow = false;
+<<<<<<< HEAD
             // Preserve original materials and avoid unintended transparency
             const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
             for (const m of mats) {
@@ -116,6 +121,22 @@ export default function Spaceship() {
                 }
               }
             }
+=======
+            // Style materials for visibility: neutral base + subtle emissive
+            // try {
+            //   const mat = new THREE.MeshStandardMaterial({
+            //     color: 0xbfc8da,        // soft steel
+            //     metalness: 0.35,
+            //     roughness: 0.55,
+            //     emissive: new THREE.Color(0x1a3cff),
+            //     emissiveIntensity: 0.12,
+            //   });
+            //   obj.material = mat;
+            //   obj.material.transparent = true;
+            // } catch {
+            //   // ignore if replacement fails
+            // }
+>>>>>>> 6e407e4 (Your descriptive commit message here)
           }
         });
 
@@ -129,6 +150,12 @@ export default function Spaceship() {
         // Re-center model around origin for stable animation
         gltf.scene.position.sub(center);
 
+<<<<<<< HEAD
+=======
+        // Rotate 50 degrees to the left on the horizontal plane
+        gltf.scene.rotation.y = (-5 * Math.PI) / 18;
+
+>>>>>>> 6e407e4 (Your descriptive commit message here)
         // Optional: small uniform scale if model is huge or tiny in native units
         const targetScale = 1; // tweak if needed
         gltf.scene.scale.setScalar(targetScale);
@@ -148,9 +175,12 @@ export default function Spaceship() {
 
         // Add to scene after fit
         group.add(gltf.scene);
+<<<<<<< HEAD
 
         // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
         group.rotation.y = ORIENT_YAW;
+=======
+>>>>>>> 6e407e4 (Your descriptive commit message here)
       },
       undefined,
       (err) => {
@@ -159,9 +189,12 @@ export default function Spaceship() {
       }
     );
 
+<<<<<<< HEAD
     // Orientation constants: align the ship's "nose" to face RIGHT (+X)
     const ORIENT_YAW = Math.PI / 2; // base yaw so forward points right
 
+=======
+>>>>>>> 6e407e4 (Your descriptive commit message here)
     // Mouse parallax
     const mouse = new THREE.Vector2(0, 0);
     const onMouseMove = (e: MouseEvent) => {
@@ -184,13 +217,55 @@ export default function Spaceship() {
     // Add a smoothed look-at target for the camera to follow the ship
     const lookAtTarget = new THREE.Vector3(0, 0, 0);
 
+<<<<<<< HEAD
     let t = 0;
     const clock = new THREE.Clock();
     let prevPx = 6; // track previous x for banking
+=======
+    // Animation path
+    const path = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(8, -2, 0),
+        new THREE.Vector3(2, -0.5, 0),
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(-12, 1, 0)
+    ]);
+
+    // Warp streaks
+    const warpStreaksGeo = new THREE.BufferGeometry();
+    const warpStreaksCount = 500;
+    const warpStreaksPos = new Float32Array(warpStreaksCount * 3);
+    for (let i = 0; i < warpStreaksCount; i++) {
+        warpStreaksPos[i * 3 + 0] = (Math.random() - 0.5) * 20;
+        warpStreaksPos[i * 3 + 1] = (Math.random() - 0.5) * 20;
+        warpStreaksPos[i * 3 + 2] = (Math.random() - 0.5) * 20;
+    }
+    warpStreaksGeo.setAttribute('position', new THREE.BufferAttribute(warpStreaksPos, 3));
+    const warpStreaksMat = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.03,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+    });
+    const warpStreaks = new THREE.Points(warpStreaksGeo, warpStreaksMat);
+    scene.add(warpStreaks);
+
+    let t = 0;
+    const clock = new THREE.Clock();
+    let hyperjumpState = {
+        active: false,
+        time: 0,
+    };
+
+    const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+
+>>>>>>> 6e407e4 (Your descriptive commit message here)
     const animate = () => {
       const dt = clock.getDelta();
       t += dt;
 
+<<<<<<< HEAD
       // Float animation
       if (group) {
         // Right-bottom -> across -> far top-left with hyperjump exit
@@ -259,6 +334,92 @@ export default function Spaceship() {
 
         // Keep camera trained on the ship
         lookAtTarget.lerp(group.position, 0.12); // slightly snappier to keep it visible
+=======
+      if (group && model) {
+        const speed = 0.08;
+        let s = (t * speed) % 1.1; // Looping animation
+
+        if (s > 1 && !hyperjumpState.active) {
+            hyperjumpState.active = true;
+            hyperjumpState.time = 0;
+        }
+
+        if (hyperjumpState.active) {
+            hyperjumpState.time += dt;
+            const jumpProgress = Math.min(hyperjumpState.time / 2, 1); // 2 second jump
+            const easedProgress = easeInOutCubic(jumpProgress);
+
+            // Warp streaks
+            warpStreaks.position.copy(group.position);
+            warpStreaksMat.opacity = easedProgress;
+            const positions = warpStreaksGeo.attributes.position.array as Float32Array;
+            for (let i = 0; i < warpStreaksCount; i++) {
+                positions[i * 3 + 2] += 1 * easedProgress;
+                if (positions[i * 3 + 2] > 10) {
+                    positions[i * 3 + 2] = -10;
+                }
+            }
+            warpStreaksGeo.attributes.position.needsUpdate = true;
+
+
+            // Scale down
+            const scale = 1 - easedProgress;
+            group.scale.set(scale, scale, scale);
+
+            // Z-dive
+            group.position.z -= easedProgress * 0.5;
+
+            // Exposure flash
+            renderer.toneMappingExposure = 1.2 + easedProgress * 3;
+
+            // Engine glow fade out
+            engineSprite.material.opacity = 0.9 * (1 - easedProgress);
+            engineLight.intensity = 1.4 * (1 - easedProgress);
+
+            if (jumpProgress >= 1) {
+                group.visible = false; // Hide the ship
+                t = 0;
+                hyperjumpState.active = false;
+                group.scale.set(1, 1, 1);
+                group.position.z = 0;
+                renderer.toneMappingExposure = 1.2;
+                engineSprite.material.opacity = 0.9;
+                engineLight.intensity = 1.4;
+                warpStreaksMat.opacity = 0;
+            }
+        } else {
+            group.visible = true; // Show the ship
+            const pathPoint = path.getPointAt(s);
+            group.position.copy(pathPoint);
+
+            // Bobbing and drift
+            group.position.y += Math.sin(t * 1.5) * 0.1;
+            group.position.x += Math.sin(t * 1.2) * 0.05;
+
+
+            // Banking
+            const tangent = path.getTangentAt(s);
+            const bankTarget = -tangent.y;
+            group.rotation.z += (bankTarget - group.rotation.z) * 0.05;
+
+            // Mouse parallax (soften near exit)
+            const parallaxFactor = 1 - s;
+            const targetRotX = mouse.y * 0.25 * parallaxFactor;
+            const targetRotY = mouse.x * 0.35 * parallaxFactor;
+            group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
+            group.rotation.y += (targetRotY - group.rotation.y) * 0.04;
+        }
+
+
+        // Engine glow
+        const glowOffset = new THREE.Vector3(0, -0.05, -0.5).applyQuaternion(group.quaternion);
+        const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
+        engineLight.position.copy(glowPos);
+        engineSprite.position.copy(glowPos);
+
+        // Camera tracking
+        lookAtTarget.lerp(group.position, 0.08);
+>>>>>>> 6e407e4 (Your descriptive commit message here)
         camera.lookAt(lookAtTarget);
       }
 
@@ -278,6 +439,11 @@ export default function Spaceship() {
       renderer.dispose();
       starsGeo.dispose();
       engineSpriteMat.dispose();
+<<<<<<< HEAD
+=======
+      warpStreaksGeo.dispose();
+      warpStreaksMat.dispose();
+>>>>>>> 6e407e4 (Your descriptive commit message here)
     };
   }, []);
 
