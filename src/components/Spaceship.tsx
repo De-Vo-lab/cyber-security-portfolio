@@ -18,6 +18,8 @@ export default function Spaceship() {
     // Narrower FOV for better composition and compatibility
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 200);
     camera.position.set(0, 1.2, 8);
+    // Track the base zoom distance to modulate smoothly over time
+    let baseCameraZ = camera.position.z;
 
     // Create WebGL renderer with graceful fallback if WebGL is unavailable
     let renderer: THREE.WebGLRenderer;
@@ -219,6 +221,8 @@ export default function Spaceship() {
         // Clamp to ensure it never gets too close on small models
         const minDistance = 8;
         camera.position.set(0, 1.2, Math.max(distance, minDistance));
+        // Record the framed distance as the zoom baseline
+        baseCameraZ = camera.position.z;
 
         // Update clipping planes to suit model size, then apply
         camera.near = Math.max(0.1, maxSize / 1000);
@@ -338,8 +342,11 @@ export default function Spaceship() {
         hyperGroup.visible = false;
         renderer.toneMappingExposure = 1.2;
 
-        // Keep camera trained on the ship
+        // Smooth camera tracking and gentle zoom breathing
         lookAtTarget.lerp(group.position, 0.12);
+        // Subtle in-out zoom (breathing) that won't break anchoring
+        const zoom = Math.sin(t * 0.35) * 0.25; // amplitude ~0.25 units
+        camera.position.z = baseCameraZ + zoom;
         camera.lookAt(lookAtTarget);
       }
 
