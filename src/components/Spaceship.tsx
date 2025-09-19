@@ -83,16 +83,6 @@ export default function Spaceship() {
     // Engine glow (light + sprite) that follows the ship
     const engineLight = new THREE.PointLight(0x66aaff, 1.4, 6, 2.0);
     scene.add(engineLight);
-    const engineSpriteMat = new THREE.SpriteMaterial({
-      color: 0x6fa8ff,
-      transparent: true,
-      opacity: 0.9,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    const engineSprite = new THREE.Sprite(engineSpriteMat);
-    engineSprite.scale.set(0.35, 0.35, 0.35);
-    scene.add(engineSprite);
 
     let model: THREE.Object3D | null = null;
     loader.load(
@@ -261,7 +251,6 @@ export default function Spaceship() {
             renderer.toneMappingExposure = 1.2 + easedProgress * 3;
 
             // Engine glow fade out
-            engineSprite.material.opacity = 0.9 * (1 - easedProgress);
             engineLight.intensity = 1.4 * (1 - easedProgress);
 
             if (jumpProgress >= 1) {
@@ -271,7 +260,6 @@ export default function Spaceship() {
                 group.scale.set(1, 1, 1);
                 group.position.z = 0;
                 renderer.toneMappingExposure = 1.2;
-                engineSprite.material.opacity = 0.9;
                 engineLight.intensity = 1.4;
                 warpStreaksMat.opacity = 0;
             }
@@ -303,7 +291,7 @@ export default function Spaceship() {
         const glowOffset = new THREE.Vector3(0, -0.05, -0.5).applyQuaternion(group.quaternion);
         const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
         engineLight.position.copy(glowPos);
-        engineSprite.position.copy(glowPos);
+        // engineSprite.position.copy(glowPos);
 
         // Camera tracking
         lookAtTarget.lerp(group.position, 0.08);
@@ -325,7 +313,6 @@ export default function Spaceship() {
       mount.removeChild(renderer.domElement);
       renderer.dispose();
       starsGeo.dispose();
-      engineSpriteMat.dispose();
       warpStreaksGeo.dispose();
       warpStreaksMat.dispose();
     };
