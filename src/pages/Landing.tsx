@@ -410,42 +410,54 @@ export default function Landing() {
 
             {/* Project Details Dialog */}
             <Dialog open={projectOpen} onOpenChange={setProjectOpen}>
-              <DialogContent className="bg-black text-white border border-white/10 max-h-[85vh] overflow-y-auto sm:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>
-                    {selectedProject ? projectsData[selectedProject].title : 'Project'}
-                  </DialogTitle>
-                  {selectedProject && projectsData[selectedProject].duration && (
-                    <DialogDescription className="text-white/60">
-                      {projectsData[selectedProject].duration}
-                    </DialogDescription>
+              <DialogContent className="bg-black/80 backdrop-blur-md text-white border border-white/10 max-h-[85vh] overflow-y-auto sm:max-w-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
+                <motion.div
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  <DialogHeader>
+                    <DialogTitle>
+                      {selectedProject ? projectsData[selectedProject].title : 'Project'}
+                    </DialogTitle>
+                    {selectedProject && projectsData[selectedProject].duration && (
+                      <DialogDescription className="text-white/60">
+                        {projectsData[selectedProject].duration}
+                      </DialogDescription>
+                    )}
+                  </DialogHeader>
+
+                  {selectedProject && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2, delay: 0.05 }}
+                      className="space-y-4"
+                    >
+                      {projectsData[selectedProject].techStack && (
+                        <p className="text-white/80">{projectsData[selectedProject].techStack}</p>
+                      )}
+                      <div className="space-y-2">
+                        {projectsData[selectedProject].description.map((d, i) => (
+                          <p key={i} className="text-white/80 leading-relaxed">
+                            {d}
+                          </p>
+                        ))}
+                      </div>
+                      {projectsData[selectedProject].link && (
+                        <a
+                          href={projectsData[selectedProject].link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-white/90 underline hover:opacity-90 transition"
+                        >
+                          View on GitHub
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      )}
+                    </motion.div>
                   )}
-                </DialogHeader>
-                {selectedProject && (
-                  <div className="space-y-4">
-                    {projectsData[selectedProject].techStack && (
-                      <p className="text-white/80">{projectsData[selectedProject].techStack}</p>
-                    )}
-                    <div className="space-y-2">
-                      {projectsData[selectedProject].description.map((d, i) => (
-                        <p key={i} className="text-white/80 leading-relaxed">
-                          {d}
-                        </p>
-                      ))}
-                    </div>
-                    {projectsData[selectedProject].link && (
-                      <a
-                        href={projectsData[selectedProject].link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-white/90 underline"
-                      >
-                        View on GitHub
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    )}
-                  </div>
-                )}
+                </motion.div>
               </DialogContent>
             </Dialog>
           </motion.div>
