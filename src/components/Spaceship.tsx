@@ -76,11 +76,7 @@ export default function Spaceship() {
 
     // Load GLB
     const loader = new GLTFLoader();
-<<<<<<< HEAD
-    const MODEL_PATH = "/assets/racing_ship.glb";
-=======
     const MODEL_PATH = "/assets/racing_ship (1).glb";
->>>>>>> 6e407e4 (Your descriptive commit message here)
     const group = new THREE.Group();
     scene.add(group);
 
@@ -107,7 +103,6 @@ export default function Spaceship() {
           if (obj.isMesh) {
             obj.castShadow = false;
             obj.receiveShadow = false;
-<<<<<<< HEAD
             // Preserve original materials and avoid unintended transparency
             const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
             for (const m of mats) {
@@ -121,22 +116,6 @@ export default function Spaceship() {
                 }
               }
             }
-=======
-            // Style materials for visibility: neutral base + subtle emissive
-            // try {
-            //   const mat = new THREE.MeshStandardMaterial({
-            //     color: 0xbfc8da,        // soft steel
-            //     metalness: 0.35,
-            //     roughness: 0.55,
-            //     emissive: new THREE.Color(0x1a3cff),
-            //     emissiveIntensity: 0.12,
-            //   });
-            //   obj.material = mat;
-            //   obj.material.transparent = true;
-            // } catch {
-            //   // ignore if replacement fails
-            // }
->>>>>>> 6e407e4 (Your descriptive commit message here)
           }
         });
 
@@ -150,14 +129,11 @@ export default function Spaceship() {
         // Re-center model around origin for stable animation
         gltf.scene.position.sub(center);
 
-<<<<<<< HEAD
-=======
         // Rotate 50 degrees to the left on the horizontal plane
         gltf.scene.rotation.y = (-5 * Math.PI) / 18;
 
->>>>>>> 6e407e4 (Your descriptive commit message here)
         // Optional: small uniform scale if model is huge or tiny in native units
-        const targetScale = 1; // tweak if needed
+        const targetScale = 0.5; // tweak if needed
         gltf.scene.scale.setScalar(targetScale);
 
         // Compute a camera distance that fits the model with some margin
@@ -175,12 +151,6 @@ export default function Spaceship() {
 
         // Add to scene after fit
         group.add(gltf.scene);
-<<<<<<< HEAD
-
-        // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
-        group.rotation.y = ORIENT_YAW;
-=======
->>>>>>> 6e407e4 (Your descriptive commit message here)
       },
       undefined,
       (err) => {
@@ -189,12 +159,6 @@ export default function Spaceship() {
       }
     );
 
-<<<<<<< HEAD
-    // Orientation constants: align the ship's "nose" to face RIGHT (+X)
-    const ORIENT_YAW = Math.PI / 2; // base yaw so forward points right
-
-=======
->>>>>>> 6e407e4 (Your descriptive commit message here)
     // Mouse parallax
     const mouse = new THREE.Vector2(0, 0);
     const onMouseMove = (e: MouseEvent) => {
@@ -217,11 +181,6 @@ export default function Spaceship() {
     // Add a smoothed look-at target for the camera to follow the ship
     const lookAtTarget = new THREE.Vector3(0, 0, 0);
 
-<<<<<<< HEAD
-    let t = 0;
-    const clock = new THREE.Clock();
-    let prevPx = 6; // track previous x for banking
-=======
     // Animation path
     const path = new THREE.CatmullRomCurve3([
         new THREE.Vector3(8, -2, 0),
@@ -260,81 +219,10 @@ export default function Spaceship() {
 
     const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
 
->>>>>>> 6e407e4 (Your descriptive commit message here)
     const animate = () => {
       const dt = clock.getDelta();
       t += dt;
 
-<<<<<<< HEAD
-      // Float animation
-      if (group) {
-        // Right-bottom -> across -> far top-left with hyperjump exit
-        const speed = 0.25; // faster pass
-        const s = (t * speed) % 1; // 0..1 per pass
-
-        // Keypoints and offsets
-        const P0 = { x: -6, y: -1 };   // start from left-bottom (entry stays smooth)
-        const PEND = { x: 10, y: 3 };  // exit to far right-top (hyperjump to the right)
-        // Helpers
-        const smoothstep = (a: number, b: number, x: number) => {
-          const tt = Math.max(0, Math.min(1, (x - a) / (b - a)));
-          return tt * tt * (3 - 2 * tt);
-        };
-        const lerp = (a: number, b: number, tt: number) => a + (b - a) * tt;
-
-        // Long pass interpolation
-        const u = smoothstep(0, 1, s);
-        const px = lerp(P0.x, PEND.x, u);
-        const py = lerp(P0.y, PEND.y, u);
-
-        // Gentle bobbing overlay
-        const bob = Math.sin(t * 1.2) * 0.25;
-
-        // Black hole hyperjump phase near the end of the pass
-        const hyper = smoothstep(0.78, 1.0, s); // ramp up towards the end
-        const hyperDepth = 8;                   // how far into Z it dives
-        const hyperScale = 1 - hyper * 0.6;     // scale down as it jumps
-
-        group.position.x = px;
-        group.position.y = py + bob;
-        group.position.z = -hyper * hyperDepth; // dive deeper into the background
-
-        // Natural banking based on horizontal velocity
-        const vx = px - prevPx;
-        prevPx = px;
-        const bankTarget = THREE.MathUtils.clamp(-vx * 1.8, -0.45, 0.45);
-        group.rotation.z += (bankTarget - group.rotation.z) * 0.08;
-
-        // Base yaw points left; softly converge so it doesn't look backward
-        const baseYaw = ORIENT_YAW;
-        group.rotation.y += (baseYaw - group.rotation.y) * 0.06;
-
-        // Parallax damped and reduced during hyperjump for a glide-out effect
-        const parallaxDampen = 1 - hyper * 0.85;
-        const targetRotX = (mouse.y * 0.25) * parallaxDampen;
-        const targetRotY = (mouse.x * 0.35) * parallaxDampen;
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
-        group.rotation.y += (targetRotY) * 0.04;
-
-        // Subtle orbit
-        group.rotation.y += 0.08 * dt * (1 - hyper); // reduce orbit as it exits
-
-        // Scale down on exit to enhance black hole feel
-        const scaled = Math.max(0.2, hyperScale);
-        group.scale.setScalar(scaled);
-
-        // Engine glow follows and pulses; fade during hyperjump
-        const glowOffset = new THREE.Vector3(-0.6, -0.05, -0.15);
-        const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
-        engineLight.position.copy(glowPos);
-        engineSprite.position.copy(glowPos);
-        const baseIntensity = 1.2 + Math.sin(t * 12) * 0.15;
-        engineLight.intensity = baseIntensity * (1 - hyper * 0.85);
-        engineSprite.material.opacity = (0.75 + Math.sin(t * 10) * 0.1) * (1 - hyper * 0.9);
-
-        // Keep camera trained on the ship
-        lookAtTarget.lerp(group.position, 0.12); // slightly snappier to keep it visible
-=======
       if (group && model) {
         const speed = 0.08;
         let s = (t * speed) % 1.1; // Looping animation
@@ -419,7 +307,6 @@ export default function Spaceship() {
 
         // Camera tracking
         lookAtTarget.lerp(group.position, 0.08);
->>>>>>> 6e407e4 (Your descriptive commit message here)
         camera.lookAt(lookAtTarget);
       }
 
@@ -439,11 +326,8 @@ export default function Spaceship() {
       renderer.dispose();
       starsGeo.dispose();
       engineSpriteMat.dispose();
-<<<<<<< HEAD
-=======
       warpStreaksGeo.dispose();
       warpStreaksMat.dispose();
->>>>>>> 6e407e4 (Your descriptive commit message here)
     };
   }, []);
 
