@@ -276,6 +276,8 @@ export default function Spaceship() {
     const lookAtTarget = new THREE.Vector3(0, 0, 0);
 
     const BASE_SCALE = 0.8; // new: globally shrink visual size a bit
+    // Add: global animation speed scalar (1 = original speed, <1 slower, >1 faster)
+    const ANIM_SPEED = 0.7;
 
     // Initialize prevPx to the computed anchor to avoid initial banking jerk
     let t = 0;
@@ -293,11 +295,11 @@ export default function Spaceship() {
         // Fixed anchor on the right side; no sweeping/path progression
         const P0 = { x: anchorX, y: 0.2 };
 
-        // Gentle bobbing - slow it down and reduce amplitude
-        const bob = Math.sin(t * 0.6) * 0.1;
+        // Gentle bobbing - apply speed scalar
+        const bob = Math.sin(t * 0.6 * ANIM_SPEED) * 0.1;
 
-        // NEW: subtle horizontal sway around the anchor to make motion more visible
-        const sway = Math.sin(t * 0.5) * 0.25;
+        // Subtle horizontal sway - apply speed scalar
+        const sway = Math.sin(t * 0.5 * ANIM_SPEED) * 0.25;
 
         // Apply anchored position + sway
         const px = P0.x + sway; // was: const px = P0.x;
@@ -334,9 +336,9 @@ export default function Spaceship() {
         const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
         engineLight.position.copy(glowPos);
         engineSprite.position.copy(glowPos);
-        const baseIntensity = 1.1 + Math.sin(t * 8) * 0.08;
+        const baseIntensity = 1.1 + Math.sin(t * 8 * ANIM_SPEED) * 0.08;
         engineLight.intensity = baseIntensity;
-        engineSprite.material.opacity = 0.68 + Math.sin(t * 7.5) * 0.08;
+        engineSprite.material.opacity = 0.68 + Math.sin(t * 7.5 * ANIM_SPEED) * 0.08;
 
         // Keep hyperjump visuals disabled and exposure constant
         hyperGroup.visible = false;
@@ -344,8 +346,8 @@ export default function Spaceship() {
 
         // Smooth camera tracking and gentle zoom breathing
         lookAtTarget.lerp(group.position, 0.12);
-        // Subtle in-out zoom (breathing) that won't break anchoring
-        const zoom = Math.sin(t * 0.35) * 0.25; // amplitude ~0.25 units
+        // Apply speed scalar to camera breathing
+        const zoom = Math.sin(t * 0.35 * ANIM_SPEED) * 0.25; // amplitude ~0.25 units
         camera.position.z = baseCameraZ + zoom;
         camera.lookAt(lookAtTarget);
       }
