@@ -134,13 +134,9 @@ export default function Spaceship() {
     let exitProgress = 0;
     const onScroll = () => {
       if (!cinematicDone) return;
-      const vh = window.innerHeight || 1;
-      const startAt = vh * 0.6;
-      const dist = Math.max(0, window.scrollY - startAt);
-      const span = vh * 0.8;
-      exitProgress = Math.min(1, dist / span);
+      // Keep the canvas visible after cinematic; disable scroll fade-out
       if (renderer?.domElement) {
-        renderer.domElement.style.opacity = String(1 - exitProgress);
+        renderer.domElement.style.opacity = "1";
       }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -312,14 +308,42 @@ export default function Spaceship() {
 
           if (u >= 1) {
             cinematicDone = true;
-            if (renderer?.domElement) renderer.domElement.style.opacity = "0";
-            setTimeout(() => {
-              cancelAnimationFrame(raf);
-            }, 50);
+            if (renderer?.domElement) renderer.domElement.style.opacity = "1";
+            // Do not cancel the animation; continue with idle animation
           }
         } else {
-          // Post-cinematic: keep ship hidden; allow scroll fade logic to control canvas (already at 0 opacity)
-          // Optional: no-op on positions; early render exit to save work
+          // Post-cinematic idle: anchored right with gentle motion
+          const rightAnchor = anchorX;
+          const sway = Math.sin(t * 0.5 * ANIM_SPEED) * 0.25;
+          const bob = Math.sin(t * 0.6 * ANIM_SPEED) * 0.1;
+
+          const x = rightAnchor + sway;
+          const y = baseY + bob;
+          const z = 0;
+
+          group.position.set(x, y, z);
+
+          // Soft banking based on sway and mouse
+          const targetRotY = (Math.atan2(rightAnchor - x, 3.5) * 0.6) + (mouse.x * 0.12);
+          const targetRotX = (mouse.y * 0.12);
+          const targetRotZ = -(rightAnchor - x) * 0.08;
+
+          group.rotation.x += (targetRotX - group.rotation.x) * 0.08;
+          group.rotation.y += (targetRotY - group.rotation.y) * 0.08;
+          group.rotation.z += (targetRotZ - group.rotation.z) * 0.1;
+
+          // Engine glow pulse
+          const glowOffset = new THREE.Vector3(0, -0.05, -0.5).applyQuaternion(group.quaternion);
+          const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
+          engineLight.position.copy(glowPos);
+          engineSprite.position.copy(glowPos);
+          engineLight.intensity = 1.1 + Math.sin(t * 8 * ANIM_SPEED) * 0.08;
+          engineSprite.material.opacity = 0.68 + Math.sin(t * 7.5 * ANIM_SPEED) * 0.08;
+
+          // Camera smooth look + breathing
+          lookAtTarget.lerp(group.position, 0.08);
+          camera.lookAt(lookAtTarget);
+          camera.position.z = baseCameraZ + Math.sin(t * 0.35 * ANIM_SPEED) * 0.25;
         }
       }
 
