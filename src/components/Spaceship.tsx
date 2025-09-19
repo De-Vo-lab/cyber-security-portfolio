@@ -279,9 +279,11 @@ export default function Spaceship() {
       ref={mountRef}
       className="pointer-events-none fixed inset-y-0 right-0 z-10"
       style={{
-        width: "55vw",
+        // Expand canvas to full viewport width to avoid clipping at center
+        width: "100vw",
         minWidth: 320,
-        maxWidth: "900px",
+        // Remove the previous hard cap so the canvas truly spans edge-to-edge
+        // maxWidth removed
       }}
       aria-hidden="true"
     />
