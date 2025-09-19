@@ -1,6 +1,7 @@
 import ContactForm from '@/components/ContactForm';
 import SpaceBackground from '@/components/SpaceBackground';
 import Spaceship from '@/components/Spaceship';
+import Photo from '@/components/Photo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -85,6 +86,8 @@ export default function Landing() {
       <SpaceBackground />
       {/* 3D Spaceship Layer */}
       <Spaceship />
+      {/* 3D Photo Layer */}
+      <Photo />
       
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center relative z-10 px-4">

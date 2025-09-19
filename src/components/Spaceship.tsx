@@ -128,14 +128,14 @@ export default function Spaceship() {
 
         // Compute a camera distance that fits the model with some margin
         const halfFovY = THREE.MathUtils.degToRad(camera.fov * 0.5);
-        const distance = (maxSize / (2 * Math.tan(halfFovY))) * 1.25; // 25% margin
+        const distance = (maxSize / (2 * Math.tan(halfFovY))) * 0.5; // Made closer
 
         // Clamp to ensure it never gets too close on small models
-        const minDistance = 8;
-        camera.position.set(0, 1.2, Math.max(distance, minDistance));
+        const minDistance = 2;
+        camera.position.set(0, 1.2, Math.max(distance, minDistance) + 1); // Moved camera back slightly
 
         // Update clipping planes to suit model size, then apply
-        camera.near = Math.max(0.1, maxSize / 1000);
+        camera.near = 0.001; // Made near clipping plane even closer
         camera.far = Math.max(200, maxSize * 10);
         camera.updateProjectionMatrix();
 
@@ -173,10 +173,10 @@ export default function Spaceship() {
 
     // Animation path
     const path = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(8, -2, 0),
-        new THREE.Vector3(2, -0.5, 0),
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(-12, 1, 0)
+        new THREE.Vector3(8, -2, -3),
+        new THREE.Vector3(2, -0.5, -3),
+        new THREE.Vector3(0, 0, -3),
+        new THREE.Vector3(-12, 1, -3)
     ]);
 
     // Warp streaks
