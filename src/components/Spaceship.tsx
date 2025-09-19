@@ -125,22 +125,20 @@ export default function Spaceship() {
     // Camera breathing base Z
     let baseCameraZ = camera.position.z;
 
-    // Entry animation easing (ship slides in from the right on mount)
-    const easeOutCubic = (x: number) => 1 - Math.pow(1 - x, 3);
-    const ENTRY_DURATION_MS = 1800;
-    const entryStart = performance.now();
+    // Add: cinematic hyperjump sequence setup
+    const CINEMATIC_DURATION_MS = 3800; // total timeline
+    const cinematicStart = performance.now();
+    let cinematicDone = false;
 
-    // Exit animation progress (based on scroll past hero)
-    let exitProgress = 0; // 0..1
+    // Update: only allow scroll fade after cinematic is done
+    let exitProgress = 0;
     const onScroll = () => {
+      if (!cinematicDone) return;
       const vh = window.innerHeight || 1;
-      // Start exiting after ~60% of first viewport height
       const startAt = vh * 0.6;
       const dist = Math.max(0, window.scrollY - startAt);
-      const span = vh * 0.8; // how much scroll to fully exit
+      const span = vh * 0.8;
       exitProgress = Math.min(1, dist / span);
-
-      // Fade the whole canvas in sync with exit
       if (renderer?.domElement) {
         renderer.domElement.style.opacity = String(1 - exitProgress);
       }
@@ -236,53 +234,99 @@ export default function Spaceship() {
     const animate = () => {
       const dt = clock.getDelta();
       const t = clock.getElapsedTime();
-
-      // Compute entry easing offset (slides from +6 -> 0)
       const now = performance.now();
-      const entryT = Math.min(1, Math.max(0, (now - entryStart) / ENTRY_DURATION_MS));
-      const entryEase = easeOutCubic(entryT);
-      const entryOffsetX = (1 - entryEase) * 6; // starts far right, eases to 0
-
-      // Exit offset pushes ship further right as user scrolls down
-      const exitOffsetX = exitProgress * 4;
 
       if (group && model) {
-        // Gentle idle motion
-        const bob = Math.sin(t * 0.6 * ANIM_SPEED) * 0.1; // vertical bob
-        const sway = Math.sin(t * 0.5 * ANIM_SPEED) * 0.25; // subtle horizontal sway
+        if (!cinematicDone) {
+          // Cinematic timeline progress 0..1
+          const u = Math.min(1, (now - cinematicStart) / CINEMATIC_DURATION_MS);
 
-        // Position with entry + exit offsets
-        group.position.x = anchorX + sway + entryOffsetX + exitOffsetX;
-        group.position.y = baseY + bob;
-        group.position.z = 0;
+          // Phases:
+          // A: 0.00–0.25  fast entry (right -> near-right)
+          // B: 0.25–0.70 sweep to left
+          // C: 0.70–0.90 return to center
+          // D: 0.90–1.00 hyperjump vanish (fade + push forward)
 
-        // Soft banking & parallax from mouse
-        const targetRotX = mouse.y * 0.20; // damped pitch
-        const targetRotY = -0.12 + mouse.x * 0.25; // gentle yaw (slight left bias)
-        const targetRotZ = -sway * 0.06; // bank with sway
+          // Anchor reference on z=0 plane
+          const rightAnchor = anchorX;
 
-        group.rotation.x += (targetRotX - group.rotation.x) * 0.06;
-        group.rotation.y += (targetRotY - group.rotation.y) * 0.05;
-        group.rotation.z += (targetRotZ - group.rotation.z) * 0.08;
+          // Easing
+          const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
+          const easeInOut = (x: number) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
-        // Engine glow follows and pulses
-        const glowOffset = new THREE.Vector3(0, -0.05, -0.5).applyQuaternion(group.quaternion);
-        const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
-        engineLight.position.copy(glowPos);
-        engineSprite.position.copy(glowPos);
+          let x = rightAnchor;
+          let y = baseY;
+          let z = 0;
 
-        engineLight.intensity = 1.1 + Math.sin(t * 8 * ANIM_SPEED) * 0.08;
-        engineSprite.material.opacity = 0.68 + Math.sin(t * 7.5 * ANIM_SPEED) * 0.08;
+          if (u <= 0.25) {
+            // Phase A: from offscreen far right (+6) to near-right (+1)
+            const p = easeOut(u / 0.25);
+            x = rightAnchor + (1 - p) * 6 + p * 1;
+            y = baseY + Math.sin(t * 0.8 * ANIM_SPEED) * 0.06;
+          } else if (u <= 0.70) {
+            // Phase B: near-right (+1) to left side (-3)
+            const p = easeInOut((u - 0.25) / 0.45);
+            x = (1 - p) * (rightAnchor + 1) + p * -3;
+            y = baseY + Math.sin(t * 0.9 * ANIM_SPEED) * 0.08;
+          } else if (u <= 0.90) {
+            // Phase C: left (-3) back to center (0)
+            const p = easeInOut((u - 0.70) / 0.20);
+            x = (1 - p) * -3 + p * 0;
+            y = baseY + Math.sin(t * 1.0 * ANIM_SPEED) * 0.1;
+          } else {
+            // Phase D: hyperjump vanish — push forward in z and fade
+            const p = (u - 0.90) / 0.10;
+            x = 0;
+            y = baseY;
+            z = -6 * easeOut(p);
+            // Fade out the canvas rapidly
+            if (renderer?.domElement) {
+              renderer.domElement.style.opacity = String(1 - p);
+            }
+          }
 
-        // Camera smooth tracking of the ship
-        lookAtTarget.lerp(group.position, 0.08);
-        camera.lookAt(lookAtTarget);
+          // Apply position
+          group.position.set(x, y, z);
 
-        // Camera breathing (subtle zoom)
-        camera.position.z = baseCameraZ + Math.sin(t * 0.35 * ANIM_SPEED) * 0.25;
+          // Cinematic banking: face travel direction with gentle mouse influence
+          const targetRotY =
+            (Math.atan2(rightAnchor - x, 4) * 0.5) + (mouse.x * 0.15); // yaw toward motion
+          const targetRotX = (mouse.y * 0.15);
+          const targetRotZ = -(rightAnchor - x) * 0.06;
+
+          group.rotation.x += (targetRotX - group.rotation.x) * 0.08;
+          group.rotation.y += (targetRotY - group.rotation.y) * 0.08;
+          group.rotation.z += (targetRotZ - group.rotation.z) * 0.10;
+
+          // Engine pulse stays active
+          const glowOffset = new THREE.Vector3(0, -0.05, -0.5).applyQuaternion(group.quaternion);
+          const glowPos = new THREE.Vector3().copy(group.position).add(glowOffset);
+          engineLight.position.copy(glowPos);
+          engineSprite.position.copy(glowPos);
+          engineLight.intensity = 1.1 + Math.sin(t * 8 * ANIM_SPEED) * 0.08;
+          engineSprite.material.opacity = 0.68 + Math.sin(t * 7.5 * ANIM_SPEED) * 0.08;
+
+          // Camera: keep smooth look, plus breathing
+          lookAtTarget.lerp(group.position, 0.08);
+          camera.lookAt(lookAtTarget);
+          camera.position.z = baseCameraZ + Math.sin(t * 0.35 * ANIM_SPEED) * 0.25;
+
+          if (u >= 1) {
+            cinematicDone = true;
+            // Ensure fully hidden at end and stop rendering loop
+            if (renderer?.domElement) renderer.domElement.style.opacity = "0";
+            // Give one more frame to settle, then stop
+            setTimeout(() => {
+              cancelAnimationFrame(raf);
+            }, 50);
+          }
+        } else {
+          // Post-cinematic: keep ship hidden; allow scroll fade logic to control canvas (already at 0 opacity)
+          // Optional: no-op on positions; early render exit to save work
+        }
       }
 
-      // Subtle star drift
+      // Subtle star drift continues during cinematic
       stars.rotation.z += 0.01 * dt;
 
       renderer.render(scene, camera);
