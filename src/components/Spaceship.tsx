@@ -126,7 +126,7 @@ export default function Spaceship() {
     let baseCameraZ = camera.position.z;
 
     // Add: cinematic hyperjump sequence setup
-    const CINEMATIC_DURATION_MS = 3800; // total timeline
+    const CINEMATIC_DURATION_MS = 3000; // faster overall sequence
     const cinematicStart = performance.now();
     let cinematicDone = false;
 
@@ -259,27 +259,26 @@ export default function Spaceship() {
           let z = 0;
 
           if (u <= 0.25) {
-            // Phase A: from offscreen far right (+6) to near-right (+1)
+            // Phase A: from offscreen far right (+8) to near-right (+0.5) — faster, more dramatic
             const p = easeOut(u / 0.25);
-            x = rightAnchor + (1 - p) * 6 + p * 1;
-            y = baseY + Math.sin(t * 0.8 * ANIM_SPEED) * 0.06;
+            x = rightAnchor + (1 - p) * 8 + p * 0.5;
+            y = baseY + Math.sin(t * 1.0 * ANIM_SPEED) * 0.08;
           } else if (u <= 0.70) {
-            // Phase B: near-right (+1) to left side (-3)
+            // Phase B: near-right (+0.5) to left side (-4) — deeper sweep
             const p = easeInOut((u - 0.25) / 0.45);
-            x = (1 - p) * (rightAnchor + 1) + p * -3;
-            y = baseY + Math.sin(t * 0.9 * ANIM_SPEED) * 0.08;
+            x = (1 - p) * (rightAnchor + 0.5) + p * -4;
+            y = baseY + Math.sin(t * 1.1 * ANIM_SPEED) * 0.1;
           } else if (u <= 0.90) {
-            // Phase C: left (-3) back to center (0)
+            // Phase C: left (-4) back to center (0) — set up for hyperjump
             const p = easeInOut((u - 0.70) / 0.20);
-            x = (1 - p) * -3 + p * 0;
-            y = baseY + Math.sin(t * 1.0 * ANIM_SPEED) * 0.1;
+            x = (1 - p) * -4 + p * 0;
+            y = baseY + Math.sin(t * 1.2 * ANIM_SPEED) * 0.12;
           } else {
-            // Phase D: hyperjump vanish — push forward in z and fade
+            // Phase D: hyperjump vanish — stronger push forward in z and faster fade
             const p = (u - 0.90) / 0.10;
             x = 0;
             y = baseY;
-            z = -6 * easeOut(p);
-            // Fade out the canvas rapidly
+            z = -10 * easeOut(p); // stronger vanish push
             if (renderer?.domElement) {
               renderer.domElement.style.opacity = String(1 - p);
             }
@@ -288,15 +287,15 @@ export default function Spaceship() {
           // Apply position
           group.position.set(x, y, z);
 
-          // Cinematic banking: face travel direction with gentle mouse influence
+          // Stronger cinematic banking: react more to path & mouse
           const targetRotY =
-            (Math.atan2(rightAnchor - x, 4) * 0.5) + (mouse.x * 0.15); // yaw toward motion
-          const targetRotX = (mouse.y * 0.15);
-          const targetRotZ = -(rightAnchor - x) * 0.06;
+            (Math.atan2(rightAnchor - x, 3.5) * 0.8) + (mouse.x * 0.2);
+          const targetRotX = (mouse.y * 0.2);
+          const targetRotZ = -(rightAnchor - x) * 0.1;
 
-          group.rotation.x += (targetRotX - group.rotation.x) * 0.08;
-          group.rotation.y += (targetRotY - group.rotation.y) * 0.08;
-          group.rotation.z += (targetRotZ - group.rotation.z) * 0.10;
+          group.rotation.x += (targetRotX - group.rotation.x) * 0.1;
+          group.rotation.y += (targetRotY - group.rotation.y) * 0.1;
+          group.rotation.z += (targetRotZ - group.rotation.z) * 0.12;
 
           // Engine pulse stays active
           const glowOffset = new THREE.Vector3(0, -0.05, -0.5).applyQuaternion(group.quaternion);
@@ -306,16 +305,14 @@ export default function Spaceship() {
           engineLight.intensity = 1.1 + Math.sin(t * 8 * ANIM_SPEED) * 0.08;
           engineSprite.material.opacity = 0.68 + Math.sin(t * 7.5 * ANIM_SPEED) * 0.08;
 
-          // Camera: keep smooth look, plus breathing
-          lookAtTarget.lerp(group.position, 0.08);
+          // Camera: keep smooth look + breathing
+          lookAtTarget.lerp(group.position, 0.1);
           camera.lookAt(lookAtTarget);
           camera.position.z = baseCameraZ + Math.sin(t * 0.35 * ANIM_SPEED) * 0.25;
 
           if (u >= 1) {
             cinematicDone = true;
-            // Ensure fully hidden at end and stop rendering loop
             if (renderer?.domElement) renderer.domElement.style.opacity = "0";
-            // Give one more frame to settle, then stop
             setTimeout(() => {
               cancelAnimationFrame(raf);
             }, 50);
