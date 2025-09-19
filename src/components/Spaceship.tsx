@@ -44,13 +44,15 @@ export default function Spaceship() {
     mount.appendChild(renderer.domElement);
 
     // Add: global right-side world anchor + projector to align ship to true page center
+    // Introduce a single ratio constant and reuse it everywhere
+    const RIGHT_ANCHOR_RATIO = 0.86; // anchor near the right edge of the fixed-right canvas
     let anchorX = 3.2;
     const computeWorldXAtScreenRatio = () => {
       if (!mount) return;
 
-      // Pick a point ~32% from the left edge of the ship canvas (keeps ship right-aligned)
       const rect = mount.getBoundingClientRect();
-      const screenX = rect.left + rect.width * 0.32;
+      // Use the right-side ratio within the spaceship canvas to keep it visually docked right
+      const screenX = rect.left + rect.width * RIGHT_ANCHOR_RATIO;
       const screenY = rect.top + rect.height * 0.5;
 
       // Convert screen pos -> NDC
@@ -226,46 +228,10 @@ export default function Spaceship() {
         // Add to scene after fit
         group.add(gltf.scene);
 
-        // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
         group.rotation.y = ORIENT_YAW;
 
-        // Persistent right-side world-space anchor (z=0 plane).
-        // Keeps the ship aligned with the true page center vs the fixed-right canvas.
-        let anchorX = 3.2;
-        const computeWorldXAtScreenRatio = () => {
-          if (!mount) return;
-
-          // Choose a point ~one-third into the spaceship canvas from its left edge
-          // to keep the ship visually right-aligned without overlapping the hero text.
-          const rect = mount.getBoundingClientRect();
-          const screenX = rect.left + rect.width * 0.32;
-          const screenY = rect.top + rect.height * 0.5;
-
-          // Screen -> NDC
-          const ndc = new THREE.Vector3(
-            (screenX / window.innerWidth) * 2 - 1,
-            -(screenY / window.innerHeight) * 2 + 1,
-            0.5
-          );
-
-          // Unproject to world, intersect with z=0 plane
-          ndc.unproject(camera);
-          const origin = camera.position.clone();
-          const dir = ndc.sub(origin).normalize();
-          const EPS = 1e-6;
-          if (Math.abs(dir.z) < EPS) return;
-
-          const t = (0 - origin.z) / dir.z;
-          const hit = origin.add(dir.multiplyScalar(t));
-          if (Number.isFinite(hit.x)) {
-            anchorX = hit.x;
-          }
-        };
-
-        // Initial anchor compute
-        computeWorldXAtScreenRatio();
-
-        // Recompute right-side anchor now that the camera framing is finalized
+        // Remove duplicate anchor logic; just compute using the shared function
+        // Initial compute after camera framing
         computeWorldXAtScreenRatio();
 
         // Ensure group starts facing left (-X). We'll still allow parallax to modulate yaw slightly.
@@ -297,6 +263,7 @@ export default function Spaceship() {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      // Recompute on resize using the single shared function
       computeWorldXAtScreenRatio();
     };
     window.addEventListener("resize", onResize);
@@ -306,10 +273,11 @@ export default function Spaceship() {
 
     const BASE_SCALE = 0.8; // new: globally shrink visual size a bit
 
+    // Initialize prevPx to the computed anchor to avoid initial banking jerk
     let t = 0;
     const clock = new THREE.Clock();
-    // Initialize prevPx to the anchor X to avoid initial banking jerk
-    let prevPx = 3.2;
+    let prevPx = anchorX;
+
     const animate = () => {
       const dt = clock.getDelta();
       t += dt;
